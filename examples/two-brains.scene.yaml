@@ -1,0 +1,21 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: two-brains
+  version: 1
+  description: 'The main brain (:8001) and an alternative brain-alt (:8002) side by
+    side, plus retrieval: embed (:8012) and rerank (:8015). 88 GB of models.'
+  author: lumbridge-computer
+  tags:
+  - brain
+  - vision
+  - rag
+models:
+- brain
+- brain-alt
+- embed
+- rerank
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

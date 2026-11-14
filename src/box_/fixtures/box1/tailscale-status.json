@@ -1,0 +1,37 @@
+{
+  "Version": "1.104.4-t938213198-gd38c96d6a",
+  "TUN": true,
+  "BackendState": "Running",
+  "HaveNodeKey": true,
+  "AuthURL": "",
+  "TailscaleIPs": [
+    "100.64.0.1",
+    "fd7a:115c:a1e0::1"
+  ],
+  "Health": [],
+  "MagicDNSSuffix": "tail0000.ts.net",
+  "CertDomains": [
+    "box1.tail0000.ts.net"
+  ],
+  "Self": {
+    "ID": "nExample1CNTRL",
+    "HostName": "box1",
+    "DNSName": "box1.tail0000.ts.net.",
+    "OS": "linux",
+    "TailscaleIPs": [
+      "100.64.0.1",
+      "fd7a:115c:a1e0::1"
+    ],
+    "Tags": [
+      "tag:server"
+    ],
+    "Online": true
+  },
+  "CurrentTailnet": {
+    "Name": "owner@example.com",
+    "StableID": "TExample1CNTRL",
+    "MagicDNSSuffix": "tail0000.ts.net",
+    "MagicDNSEnabled": true
+  },
+  "Peer": {}
+}

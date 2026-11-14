@@ -1,0 +1,16 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: studio
+  version: 1
+  description: "Image and music generation with a small brain."
+  author: lumbridge-computer
+  tags: [image, music]
+models:
+  - image
+  - music
+  - brain-small
+budget_gb: 100
+activation:
+  order: footprint-asc
+  wait_healthy: true

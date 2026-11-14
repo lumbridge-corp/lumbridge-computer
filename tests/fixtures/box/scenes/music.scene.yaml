@@ -1,0 +1,15 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: music
+  version: 1
+  description: "Music generation next to the brain."
+  author: lumbridge-computer
+  tags: [music]
+models:
+  - music
+  - brain
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

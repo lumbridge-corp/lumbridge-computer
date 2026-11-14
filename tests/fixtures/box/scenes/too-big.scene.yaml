@@ -1,0 +1,17 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: too-big
+  version: 1
+  description: "More than the budget holds; activation refuses it."
+  author: lumbridge-computer
+  tags: [test]
+models:
+  - brain
+  - coder
+  - music
+  - transcribe
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

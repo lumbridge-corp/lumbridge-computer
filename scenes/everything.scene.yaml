@@ -1,0 +1,25 @@
+# The one shipped Scene and the CLI default: every model in registry/models.yaml.
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: everything
+  version: 1
+  description: 'A brain with vision, speech in and out, and retrieval (embeddings
+    and a reranker) on one box. 67 GB of models.'
+  author: lumbridge-computer
+  tags:
+  - brain
+  - vision
+  - speech
+  - voice
+  - rag
+models:
+- brain
+- asr
+- tts
+- embed
+- rerank
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

@@ -1,0 +1,47 @@
+# A trimmed self-hosted Supabase compose file: service names, images, container
+# names and published ports only, which is all `doctor` reads from it.
+name: supabase
+services:
+  studio:
+    container_name: supabase-studio
+    image: supabase/studio:2026.11.02-sha-a05e7ec
+  api-gw:
+    container_name: supabase-envoy
+    image: envoyproxy/envoy:v1.39.6
+    ports:
+      - "${API_GW_HTTP_PORT:-${KONG_HTTP_PORT:-8000}}:8000/tcp"
+  auth:
+    container_name: supabase-auth
+    image: supabase/gotrue:v2.197.0
+  rest:
+    container_name: supabase-rest
+    image: postgrest/postgrest:v14.18
+  realtime:
+    container_name: realtime-dev.supabase-realtime
+    image: supabase/realtime:v2.148.3
+  storage:
+    container_name: supabase-storage
+    image: supabase/storage-api:v1.89.12
+  imgproxy:
+    container_name: supabase-imgproxy
+    image: darthsim/imgproxy:v4.0.21
+  meta:
+    container_name: supabase-meta
+    image: supabase/postgres-meta:v0.100.0
+  functions:
+    container_name: supabase-edge-functions
+    image: supabase/edge-runtime:v1.77.9
+    mem_limit: "${FUNCTIONS_MEMORY_LIMIT:-2g}"
+  db:
+    container_name: supabase-db
+    image: supabase/postgres:17.6.1.136
+  supavisor:
+    container_name: supabase-pooler
+    image: supabase/supavisor:2.9.13
+    ports:
+      - "${POSTGRES_PORT}:5432"
+      - "${POOLER_PROXY_PORT_TRANSACTION}:6543"
+  vector:
+    container_name: supabase-vector
+    image: timberio/vector:0.28.1-alpine
+    profiles: [logs]

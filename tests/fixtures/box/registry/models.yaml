@@ -1,0 +1,575 @@
+apiVersion: lumbridge/v1
+kind: Registry
+version: 1
+
+# A made-up box for the tests: twenty models of every serve kind, written the
+# way a real registry on a 128 GB unified-memory box looks. No entry uses
+# `extends:` or macros, so the resolved form is a plain copy (see
+# models.resolved.debug.txt). Ports repeat across alternatives on purpose; a
+# Scene may hold only one model per port.
+
+reservations:
+  # The self-hosted Supabase stack: the sum of its containers' mem_limit.
+  server:
+    gb: 8.5
+    cgroup: lumbridge.slice/lumbridge-server.slice
+    description: Server database (supabase)
+
+models:
+  brain:
+    name: "General brain 35B-A3B (NVFP4, vision, MTP)"
+    footprint_gb: 40
+    shed_priority: -100
+    channel: stable
+    health: http://localhost:8001/v1/models
+    health_contains: "\"root\":\"/home/sam/models/brain-35b-a3b-nvfp4\""
+    supervision:
+      restart: always
+      check_interval_sec: 15
+      failure_threshold: 2
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 2700
+      liveness:
+        kind: vllm-metrics
+        stall_sec: 300
+        chat_probe:
+          interval_sec: 120
+          timeout_sec: 30
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8001
+      weights: /home/sam/models/brain-35b-a3b-nvfp4
+      served_name:
+      - brain
+      - general-35b
+      args:
+        max-model-len: 131072
+        kv-cache-dtype: fp8
+        gpu-memory-utilization: 0.3
+        max-num-seqs: 4
+        max-num-batched-tokens: 4096
+        enable-prefix-caching: true
+        limit-mm-per-prompt: "{\"image\": 4, \"video\": 0}"
+        enable-auto-tool-choice: true
+        tool-call-parser: qwen3_coder
+        reasoning-parser: qwen3
+        speculative-config: '{"method":"mtp","num_speculative_tokens":3}'
+      env:
+        HF_HUB_OFFLINE: "1"
+        PATH: /home/sam/vllm-env/bin:/usr/local/cuda/bin:/usr/local/bin:/usr/bin:/bin
+        MAX_JOBS: "4"
+
+  brain-long:
+    name: "Long-context brain 30B-A3B (FP8, 128K)"
+    footprint_gb: 41
+    shed_priority: -100
+    channel: stable
+    health: http://localhost:8001/v1/models
+    health_contains: brain-long
+    supervision:
+      restart: always
+      check_interval_sec: 15
+      failure_threshold: 2
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 1500
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8001
+      weights: ~/models/brain-30b-a3b-fp8
+      served_name:
+      - brain
+      - brain-long
+      args:
+        max-model-len: 131072
+        kv-cache-dtype: fp8
+        gpu-memory-utilization: 0.32
+        max-num-seqs: 2
+        trust-remote-code: true
+
+  brain-small:
+    name: "Small brain 8B (FP8)"
+    footprint_gb: 18
+    shed_priority: -60
+    channel: stable
+    health: http://localhost:8003/v1/models
+    health_contains: brain-small
+    supervision:
+      restart: always
+      check_interval_sec: 15
+      failure_threshold: 2
+      backoff_sec: 30
+      max_backoff_sec: 600
+      startup_timeout_sec: 900
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8003
+      weights: ~/models/brain-8b-fp8
+      served_name:
+      - brain-small
+      args:
+        max-model-len: 32768
+        gpu-memory-utilization: 0.14
+        enforce-eager: true
+
+  coder:
+    name: "Coding model 27B (AWQ W4A16, 64K)"
+    footprint_gb: 28
+    channel: experimental
+    health: http://localhost:8888/v1/models
+    health_contains: "coder\""
+    supervision:
+      restart: always
+      check_interval_sec: 30
+      failure_threshold: 3
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 900
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8888
+      weights: ~/models/coder-27b-awq
+      served_name:
+      - coder
+      args:
+        dtype: auto
+        max-model-len: 65536
+        kv-cache-dtype: fp8
+        gpu-memory-utilization: 0.23
+        max-num-seqs: 2
+        chat-template: /home/sam/models/coder-27b-awq/chat_template.jinja
+        default-chat-template-kwargs: '{"enable_thinking": false}'
+
+  judge:
+    name: "Judge 35B-A3B (NVFP4, text only, 16K)"
+    footprint_gb: 14
+    shed_priority: 10
+    channel: stable
+    health: http://localhost:8004/v1/models
+    health_contains: judge
+    supervision:
+      restart: always
+      check_interval_sec: 30
+      failure_threshold: 3
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 1200
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8004
+      weights: /home/sam/models/brain-35b-a3b-nvfp4
+      served_name:
+      - judge
+      args:
+        max-model-len: 16384
+        kv-cache-memory-bytes: 1342177280
+        max-num-seqs: 4
+        language-model-only: true
+
+  vision:
+    name: "Vision model 8B (stills only)"
+    footprint_gb: 14
+    shed_priority: 20
+    channel: stable
+    health: http://localhost:8005/v1/models
+    health_contains: vision
+    supervision:
+      restart: always
+      check_interval_sec: 30
+      failure_threshold: 3
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 900
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8005
+      weights: ~/models/vision-8b
+      served_name:
+      - vision
+      args:
+        max-model-len: 16384
+        gpu-memory-utilization: 0.11
+        limit-mm-per-prompt: '{"image": 2, "video": 0}'
+
+  embed:
+    name: "Embedding model 1B (NVFP4)"
+    footprint_gb: 3
+    shed_priority: 0
+    channel: stable
+    health: "http://localhost:8012/v1/models"
+    health_contains: "embed"
+    supervision: {restart: always, check_interval_sec: 10, failure_threshold: 2, backoff_sec: 30, max_backoff_sec: 600, startup_timeout_sec: 600}
+    serve:
+      kind: vllm
+      executable: "~/vllm-env/bin/vllm"
+      port: 8012
+      weights: "~/models/embed-1b-nvfp4"
+      served_name:
+        - embed
+      args:
+        runner: pooling
+        max-model-len: 32768
+        gpu-memory-utilization: 0.02
+        enforce-eager: true
+
+  rerank:
+    name: "Reranker 1B (BF16, cross-encoder)"
+    footprint_gb: 5
+    shed_priority: 0
+    channel: stable
+    health: "http://localhost:8015/v1/models"
+    health_contains: "rerank"
+    supervision: {restart: always, check_interval_sec: 10, failure_threshold: 2, backoff_sec: 30, max_backoff_sec: 600, startup_timeout_sec: 600}
+    serve:
+      kind: vllm
+      executable: "~/vllm-env/bin/vllm"
+      port: 8015
+      weights: "~/models/rerank-1b"
+      served_name:
+        - rerank
+      args:
+        runner: pooling
+        trust-remote-code: true
+        chat-template: "/home/sam/models/rerank-1b/rerank.jinja"
+        max-model-len: 8192
+        gpu-memory-utilization: 0.03
+        enforce-eager: true
+
+  asr:
+    name: "Streaming speech recognition 0.6B (English)"
+    footprint_gb: 7
+    shed_priority: -40
+    channel: stable
+    health: http://localhost:8006/health
+    health_contains: '"model":"asr-streaming-0.6b"'
+    supervision:
+      restart: always
+      check_interval_sec: 10
+      failure_threshold: 2
+      backoff_sec: 30
+      max_backoff_sec: 600
+      startup_timeout_sec: 120
+    serve:
+      kind: python
+      port: 8006
+      command:
+      - ~/asr-env/bin/python
+      - ~/asr/server.py
+      env:
+        ASR_MODEL_PATH: ~/models/asr-streaming-0.6b
+        ASR_PORT: "8006"
+
+  transcribe:
+    name: "Transcription 30B-A4B (GGUF) with diarization and word timestamps"
+    footprint_gb: 26
+    shed_priority: -30
+    channel: stable
+    health: http://localhost:8806/health
+    health_contains: '"status":"ok"'
+    supervision:
+      restart: always
+      check_interval_sec: 15
+      failure_threshold: 2
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 600
+    serve:
+      kind: exec
+      port: 8806
+      command:
+      - /home/sam/src/speech-server/build/bin/speech-server
+      - --model
+      - /home/sam/models/transcribe-30b-a4b.gguf
+      - --host
+      - 127.0.0.1
+      - --port
+      - "8806"
+      - --metrics
+      env:
+        CUDA_VISIBLE_DEVICES: "0"
+
+  asr-compat:
+    name: "Older transcription API on :8792, served by transcribe"
+    footprint_gb: 0
+    shed_priority: 0
+    channel: stable
+    health: http://localhost:8792/health
+    health_contains: compat
+    supervision:
+      restart: always
+      check_interval_sec: 30
+      failure_threshold: 3
+      backoff_sec: 30
+      max_backoff_sec: 600
+      startup_timeout_sec: 60
+    serve:
+      kind: exec
+      port: 8792
+      command:
+      - ~/speech-compat/.venv/bin/python
+      - ~/speech-compat/compat.py
+      env:
+        UPSTREAM: http://127.0.0.1:8806
+
+  tts:
+    name: "Voice-clone TTS 2B (48 kHz)"
+    footprint_gb: 12
+    shed_priority: -50
+    channel: stable
+    health: http://localhost:8097/health
+    health_contains: '"model_loaded":true'
+    supervision:
+      restart: always
+      check_interval_sec: 30
+      failure_threshold: 3
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 600
+    serve:
+      kind: exec
+      port: 8097
+      command:
+      - /home/sam/tts/venv/bin/python
+      - /home/sam/tts-omni-env/bin/vllm
+      - serve
+      - /home/sam/models/tts-2b
+      - --omni
+      - --port
+      - "8097"
+      env:
+        PYTHONUNBUFFERED: "1"
+
+  tts-compat:
+    name: "OpenAI-compatible speech endpoint -> tts (24 kHz)"
+    footprint_gb: 0
+    shed_priority: -50
+    channel: stable
+    health: http://localhost:8098/health
+    health_contains: BaseHTTP
+    supervision:
+      restart: always
+      check_interval_sec: 30
+      failure_threshold: 3
+      backoff_sec: 30
+      max_backoff_sec: 600
+      startup_timeout_sec: 60
+    serve:
+      kind: python
+      port: 8098
+      command:
+      - ~/tts-compat/.venv/bin/python
+      - ~/tts-compat/shim.py
+      env:
+        TTS_UPSTREAM: http://127.0.0.1:8097
+        SAMPLE_RATE: "24000"
+
+  tts-fast:
+    name: "Fast TTS 0.5B (turbo)"
+    footprint_gb: 5
+    channel: stable
+    health: http://localhost:8095/health
+    health_contains: '"model_loaded":true'
+    supervision:
+      restart: always
+      check_interval_sec: 30
+      failure_threshold: 3
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 180
+    serve:
+      kind: uvicorn
+      port: 8095
+      command:
+      - ~/fast-tts-env/bin/uvicorn
+      - voice_api:app
+      - --host
+      - 127.0.0.1
+      - --port
+      - "8095"
+      - --app-dir
+      - ~/fast-tts
+      env:
+        TTS_VARIANT: turbo
+        TTS_MODEL_DIR: /home/sam/models/fast-tts
+
+  brain-docker:
+    name: "General brain 35B-A3B in a container (NVFP4)"
+    footprint_gb: 40
+    shed_priority: -100
+    channel: experimental
+    health: http://localhost:8001/v1/models
+    health_contains: brain-docker
+    supervision:
+      restart: always
+      check_interval_sec: 15
+      failure_threshold: 2
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 1500
+    serve:
+      kind: docker
+      port: 8001
+      command:
+      - docker
+      - run
+      - --rm
+      - --init
+      - --name=brain-docker
+      - --gpus
+      - all
+      - --network
+      - host
+      - --ipc
+      - host
+      - -e
+      - HF_HUB_OFFLINE=1
+      - -v
+      - /home/sam/.cache/huggingface:/root/.cache/huggingface
+      - -v
+      - /home/sam/models:/models:ro
+      - vllm/vllm-openai:v0.12.0
+      - /models/brain-35b-a3b-nvfp4
+      - --served-model-name
+      - brain
+      - brain-docker
+      - --gpu-memory-utilization
+      - "0.30"
+      - --max-model-len
+      - "65536"
+      - --port
+      - "8001"
+
+  sglang-brain:
+    name: "Brain 30B-A3B on SGLang (FP8)"
+    footprint_gb: 30
+    channel: experimental
+    health: http://localhost:8030/v1/models
+    health_contains: sglang-brain
+    serve:
+      kind: docker
+      port: 8030
+      command:
+      - docker
+      - run
+      - --rm
+      - --name=sglang-brain
+      - --gpus
+      - all
+      - --network
+      - host
+      - -v
+      - /home/sam/models:/models:ro
+      - lmsysorg/sglang:v0.5.0
+      - python3
+      - -m
+      - sglang.launch_server
+      - --model-path
+      - /models/brain-30b-a3b-fp8
+      - --served-model-name
+      - sglang-brain
+      - --port
+      - "8030"
+      - --mem-fraction-static
+      - "0.25"
+      - --enable-metrics
+
+  llama:
+    name: "Brain 27B on llama.cpp (Q4_K_M GGUF)"
+    footprint_gb: 20
+    channel: experimental
+    health: http://localhost:8020/v1/models
+    health_contains: llama
+    supervision:
+      restart: always
+      check_interval_sec: 30
+      failure_threshold: 3
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 300
+    serve:
+      kind: exec
+      port: 8020
+      command:
+      - /home/sam/src/llama.cpp/build/bin/llama-server
+      - -m
+      - /home/sam/models/brain-27b-q4_k_m.gguf
+      - --host
+      - 127.0.0.1
+      - --port
+      - "8020"
+      - -ngl
+      - all
+      - -c
+      - "32768"
+      - --alias
+      - llama
+      - --metrics
+
+  image:
+    name: "Image generation (diffusion, NVFP4) behind a node UI"
+    footprint_gb: 15
+    shed_priority: 50
+    channel: experimental
+    health: http://localhost:8188/system_stats
+    health_contains: system
+    serve:
+      kind: docker
+      port: 8188
+      command:
+      - docker
+      - run
+      - --rm
+      - --name=image
+      - --gpus
+      - all
+      - --network
+      - host
+      - -v
+      - /home/sam/models/image:/models:ro
+      - example/image-ui:1.0
+      - --listen
+      - 127.0.0.1
+      - --port
+      - "8188"
+
+  music:
+    name: "Music generation 3B (BF16, full songs)"
+    footprint_gb: 26
+    shed_priority: 40
+    channel: experimental
+    health: http://localhost:8010/health
+    health_contains: '"ready":true'
+    serve:
+      kind: diffusers
+      port: 8010
+      command:
+      - ~/music-env/bin/python
+      - ~/music/server.py
+      env:
+        MUSIC_MODEL_PATH: ~/models/music-3b
+        MUSIC_API_PORT: "8010"
+        MUSIC_API_HOST: 127.0.0.1
+
+  tts-old:
+    name: "Earlier voice-clone TTS (24 kHz)"
+    footprint_gb: 24
+    channel: retired
+    health: http://localhost:8099/health
+    health_contains: '"model_loaded":true'
+    serve:
+      kind: exec
+      port: 8099
+      command:
+      - /home/sam/tts-old/.venv/bin/python
+      - /home/sam/tts-old/voice_api.py
+      env:
+        PYTHONUNBUFFERED: "1"
+        TTS_PORT: "8099"
+        TTS_MODEL_DIR: /home/sam/models/tts-old

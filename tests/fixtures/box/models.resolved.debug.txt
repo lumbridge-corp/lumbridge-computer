@@ -1,0 +1,1194 @@
+{
+    "asr": Model {
+        name: "Streaming speech recognition 0.6B (English)",
+        footprint_gb: 7.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8006/health",
+        ),
+        health_contains: Some(
+            "\"model\":\"asr-streaming-0.6b\"",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 10,
+                failure_threshold: 2,
+                backoff_sec: 30,
+                max_backoff_sec: 600,
+                startup_timeout_sec: 120,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            -40,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "python",
+            engine: None,
+            executable: None,
+            port: Some(
+                8006,
+            ),
+            command: [
+                "~/asr-env/bin/python",
+                "~/asr/server.py",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {
+                "ASR_MODEL_PATH": "~/models/asr-streaming-0.6b",
+                "ASR_PORT": "8006",
+            },
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "asr-compat": Model {
+        name: "Older transcription API on :8792, served by transcribe",
+        footprint_gb: 0.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8792/health",
+        ),
+        health_contains: Some(
+            "compat",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 30,
+                failure_threshold: 3,
+                backoff_sec: 30,
+                max_backoff_sec: 600,
+                startup_timeout_sec: 60,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            0,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "exec",
+            engine: None,
+            executable: None,
+            port: Some(
+                8792,
+            ),
+            command: [
+                "~/speech-compat/.venv/bin/python",
+                "~/speech-compat/compat.py",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {
+                "UPSTREAM": "http://127.0.0.1:8806",
+            },
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "brain": Model {
+        name: "General brain 35B-A3B (NVFP4, vision, MTP)",
+        footprint_gb: 40.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8001/v1/models",
+        ),
+        health_contains: Some(
+            "\"root\":\"/home/sam/models/brain-35b-a3b-nvfp4\"",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 15,
+                failure_threshold: 2,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 2700,
+                probe_timeout_ms: None,
+                liveness: Some(
+                    Liveness {
+                        kind: VllmMetrics,
+                        metrics_path: "/metrics",
+                        stall_sec: 300,
+                        chat_probe: Some(
+                            ChatProbe {
+                                interval_sec: 120,
+                                timeout_sec: 30,
+                                model: None,
+                            },
+                        ),
+                    },
+                ),
+            },
+        ),
+        shed_priority: Some(
+            -100,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "vllm",
+            engine: None,
+            executable: Some(
+                "~/vllm-env/bin/vllm",
+            ),
+            port: Some(
+                8001,
+            ),
+            command: [],
+            weights: Some(
+                "/home/sam/models/brain-35b-a3b-nvfp4",
+            ),
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [
+                "brain",
+                "general-35b",
+            ],
+            args: {
+                "enable-auto-tool-choice": Bool(true),
+                "enable-prefix-caching": Bool(true),
+                "gpu-memory-utilization": Number(0.3),
+                "kv-cache-dtype": String("fp8"),
+                "limit-mm-per-prompt": String("{\"image\": 4, \"video\": 0}"),
+                "max-model-len": Number(131072),
+                "max-num-batched-tokens": Number(4096),
+                "max-num-seqs": Number(4),
+                "reasoning-parser": String("qwen3"),
+                "speculative-config": String("{\"method\":\"mtp\",\"num_speculative_tokens\":3}"),
+                "tool-call-parser": String("qwen3_coder"),
+            },
+            env: {
+                "HF_HUB_OFFLINE": "1",
+                "MAX_JOBS": "4",
+                "PATH": "/home/sam/vllm-env/bin:/usr/local/cuda/bin:/usr/local/bin:/usr/bin:/bin",
+            },
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "brain-docker": Model {
+        name: "General brain 35B-A3B in a container (NVFP4)",
+        footprint_gb: 40.0,
+        channel: Some(
+            "experimental",
+        ),
+        health: Some(
+            "http://localhost:8001/v1/models",
+        ),
+        health_contains: Some(
+            "brain-docker",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 15,
+                failure_threshold: 2,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 1500,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            -100,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "docker",
+            engine: None,
+            executable: None,
+            port: Some(
+                8001,
+            ),
+            command: [
+                "docker",
+                "run",
+                "--rm",
+                "--init",
+                "--name=brain-docker",
+                "--gpus",
+                "all",
+                "--network",
+                "host",
+                "--ipc",
+                "host",
+                "-e",
+                "HF_HUB_OFFLINE=1",
+                "-v",
+                "/home/sam/.cache/huggingface:/root/.cache/huggingface",
+                "-v",
+                "/home/sam/models:/models:ro",
+                "vllm/vllm-openai:v0.12.0",
+                "/models/brain-35b-a3b-nvfp4",
+                "--served-model-name",
+                "brain",
+                "brain-docker",
+                "--gpu-memory-utilization",
+                "0.30",
+                "--max-model-len",
+                "65536",
+                "--port",
+                "8001",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "brain-long": Model {
+        name: "Long-context brain 30B-A3B (FP8, 128K)",
+        footprint_gb: 41.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8001/v1/models",
+        ),
+        health_contains: Some(
+            "brain-long",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 15,
+                failure_threshold: 2,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 1500,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            -100,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "vllm",
+            engine: None,
+            executable: Some(
+                "~/vllm-env/bin/vllm",
+            ),
+            port: Some(
+                8001,
+            ),
+            command: [],
+            weights: Some(
+                "~/models/brain-30b-a3b-fp8",
+            ),
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [
+                "brain",
+                "brain-long",
+            ],
+            args: {
+                "gpu-memory-utilization": Number(0.32),
+                "kv-cache-dtype": String("fp8"),
+                "max-model-len": Number(131072),
+                "max-num-seqs": Number(2),
+                "trust-remote-code": Bool(true),
+            },
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "brain-small": Model {
+        name: "Small brain 8B (FP8)",
+        footprint_gb: 18.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8003/v1/models",
+        ),
+        health_contains: Some(
+            "brain-small",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 15,
+                failure_threshold: 2,
+                backoff_sec: 30,
+                max_backoff_sec: 600,
+                startup_timeout_sec: 900,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            -60,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "vllm",
+            engine: None,
+            executable: Some(
+                "~/vllm-env/bin/vllm",
+            ),
+            port: Some(
+                8003,
+            ),
+            command: [],
+            weights: Some(
+                "~/models/brain-8b-fp8",
+            ),
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [
+                "brain-small",
+            ],
+            args: {
+                "enforce-eager": Bool(true),
+                "gpu-memory-utilization": Number(0.14),
+                "max-model-len": Number(32768),
+            },
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "coder": Model {
+        name: "Coding model 27B (AWQ W4A16, 64K)",
+        footprint_gb: 28.0,
+        channel: Some(
+            "experimental",
+        ),
+        health: Some(
+            "http://localhost:8888/v1/models",
+        ),
+        health_contains: Some(
+            "coder\"",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 30,
+                failure_threshold: 3,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 900,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: None,
+        limits: None,
+        serve: Serve {
+            kind: "vllm",
+            engine: None,
+            executable: Some(
+                "~/vllm-env/bin/vllm",
+            ),
+            port: Some(
+                8888,
+            ),
+            command: [],
+            weights: Some(
+                "~/models/coder-27b-awq",
+            ),
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [
+                "coder",
+            ],
+            args: {
+                "chat-template": String("/home/sam/models/coder-27b-awq/chat_template.jinja"),
+                "default-chat-template-kwargs": String("{\"enable_thinking\": false}"),
+                "dtype": String("auto"),
+                "gpu-memory-utilization": Number(0.23),
+                "kv-cache-dtype": String("fp8"),
+                "max-model-len": Number(65536),
+                "max-num-seqs": Number(2),
+            },
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "embed": Model {
+        name: "Embedding model 1B (NVFP4)",
+        footprint_gb: 3.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8012/v1/models",
+        ),
+        health_contains: Some(
+            "embed",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 10,
+                failure_threshold: 2,
+                backoff_sec: 30,
+                max_backoff_sec: 600,
+                startup_timeout_sec: 600,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            0,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "vllm",
+            engine: None,
+            executable: Some(
+                "~/vllm-env/bin/vllm",
+            ),
+            port: Some(
+                8012,
+            ),
+            command: [],
+            weights: Some(
+                "~/models/embed-1b-nvfp4",
+            ),
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [
+                "embed",
+            ],
+            args: {
+                "enforce-eager": Bool(true),
+                "gpu-memory-utilization": Number(0.02),
+                "max-model-len": Number(32768),
+                "runner": String("pooling"),
+            },
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "image": Model {
+        name: "Image generation (diffusion, NVFP4) behind a node UI",
+        footprint_gb: 15.0,
+        channel: Some(
+            "experimental",
+        ),
+        health: Some(
+            "http://localhost:8188/system_stats",
+        ),
+        health_contains: Some(
+            "system",
+        ),
+        supervision: None,
+        shed_priority: Some(
+            50,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "docker",
+            engine: None,
+            executable: None,
+            port: Some(
+                8188,
+            ),
+            command: [
+                "docker",
+                "run",
+                "--rm",
+                "--name=image",
+                "--gpus",
+                "all",
+                "--network",
+                "host",
+                "-v",
+                "/home/sam/models/image:/models:ro",
+                "example/image-ui:1.0",
+                "--listen",
+                "127.0.0.1",
+                "--port",
+                "8188",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "judge": Model {
+        name: "Judge 35B-A3B (NVFP4, text only, 16K)",
+        footprint_gb: 14.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8004/v1/models",
+        ),
+        health_contains: Some(
+            "judge",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 30,
+                failure_threshold: 3,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 1200,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            10,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "vllm",
+            engine: None,
+            executable: Some(
+                "~/vllm-env/bin/vllm",
+            ),
+            port: Some(
+                8004,
+            ),
+            command: [],
+            weights: Some(
+                "/home/sam/models/brain-35b-a3b-nvfp4",
+            ),
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [
+                "judge",
+            ],
+            args: {
+                "kv-cache-memory-bytes": Number(1342177280),
+                "language-model-only": Bool(true),
+                "max-model-len": Number(16384),
+                "max-num-seqs": Number(4),
+            },
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "llama": Model {
+        name: "Brain 27B on llama.cpp (Q4_K_M GGUF)",
+        footprint_gb: 20.0,
+        channel: Some(
+            "experimental",
+        ),
+        health: Some(
+            "http://localhost:8020/v1/models",
+        ),
+        health_contains: Some(
+            "llama",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 30,
+                failure_threshold: 3,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 300,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: None,
+        limits: None,
+        serve: Serve {
+            kind: "exec",
+            engine: None,
+            executable: None,
+            port: Some(
+                8020,
+            ),
+            command: [
+                "/home/sam/src/llama.cpp/build/bin/llama-server",
+                "-m",
+                "/home/sam/models/brain-27b-q4_k_m.gguf",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8020",
+                "-ngl",
+                "all",
+                "-c",
+                "32768",
+                "--alias",
+                "llama",
+                "--metrics",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "music": Model {
+        name: "Music generation 3B (BF16, full songs)",
+        footprint_gb: 26.0,
+        channel: Some(
+            "experimental",
+        ),
+        health: Some(
+            "http://localhost:8010/health",
+        ),
+        health_contains: Some(
+            "\"ready\":true",
+        ),
+        supervision: None,
+        shed_priority: Some(
+            40,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "diffusers",
+            engine: None,
+            executable: None,
+            port: Some(
+                8010,
+            ),
+            command: [
+                "~/music-env/bin/python",
+                "~/music/server.py",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {
+                "MUSIC_API_HOST": "127.0.0.1",
+                "MUSIC_API_PORT": "8010",
+                "MUSIC_MODEL_PATH": "~/models/music-3b",
+            },
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "rerank": Model {
+        name: "Reranker 1B (BF16, cross-encoder)",
+        footprint_gb: 5.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8015/v1/models",
+        ),
+        health_contains: Some(
+            "rerank",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 10,
+                failure_threshold: 2,
+                backoff_sec: 30,
+                max_backoff_sec: 600,
+                startup_timeout_sec: 600,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            0,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "vllm",
+            engine: None,
+            executable: Some(
+                "~/vllm-env/bin/vllm",
+            ),
+            port: Some(
+                8015,
+            ),
+            command: [],
+            weights: Some(
+                "~/models/rerank-1b",
+            ),
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [
+                "rerank",
+            ],
+            args: {
+                "chat-template": String("/home/sam/models/rerank-1b/rerank.jinja"),
+                "enforce-eager": Bool(true),
+                "gpu-memory-utilization": Number(0.03),
+                "max-model-len": Number(8192),
+                "runner": String("pooling"),
+                "trust-remote-code": Bool(true),
+            },
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "sglang-brain": Model {
+        name: "Brain 30B-A3B on SGLang (FP8)",
+        footprint_gb: 30.0,
+        channel: Some(
+            "experimental",
+        ),
+        health: Some(
+            "http://localhost:8030/v1/models",
+        ),
+        health_contains: Some(
+            "sglang-brain",
+        ),
+        supervision: None,
+        shed_priority: None,
+        limits: None,
+        serve: Serve {
+            kind: "docker",
+            engine: None,
+            executable: None,
+            port: Some(
+                8030,
+            ),
+            command: [
+                "docker",
+                "run",
+                "--rm",
+                "--name=sglang-brain",
+                "--gpus",
+                "all",
+                "--network",
+                "host",
+                "-v",
+                "/home/sam/models:/models:ro",
+                "lmsysorg/sglang:v0.5.0",
+                "python3",
+                "-m",
+                "sglang.launch_server",
+                "--model-path",
+                "/models/brain-30b-a3b-fp8",
+                "--served-model-name",
+                "sglang-brain",
+                "--port",
+                "8030",
+                "--mem-fraction-static",
+                "0.25",
+                "--enable-metrics",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "transcribe": Model {
+        name: "Transcription 30B-A4B (GGUF) with diarization and word timestamps",
+        footprint_gb: 26.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8806/health",
+        ),
+        health_contains: Some(
+            "\"status\":\"ok\"",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 15,
+                failure_threshold: 2,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 600,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            -30,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "exec",
+            engine: None,
+            executable: None,
+            port: Some(
+                8806,
+            ),
+            command: [
+                "/home/sam/src/speech-server/build/bin/speech-server",
+                "--model",
+                "/home/sam/models/transcribe-30b-a4b.gguf",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8806",
+                "--metrics",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {
+                "CUDA_VISIBLE_DEVICES": "0",
+            },
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "tts": Model {
+        name: "Voice-clone TTS 2B (48 kHz)",
+        footprint_gb: 12.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8097/health",
+        ),
+        health_contains: Some(
+            "\"model_loaded\":true",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 30,
+                failure_threshold: 3,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 600,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            -50,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "exec",
+            engine: None,
+            executable: None,
+            port: Some(
+                8097,
+            ),
+            command: [
+                "/home/sam/tts/venv/bin/python",
+                "/home/sam/tts-omni-env/bin/vllm",
+                "serve",
+                "/home/sam/models/tts-2b",
+                "--omni",
+                "--port",
+                "8097",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {
+                "PYTHONUNBUFFERED": "1",
+            },
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "tts-compat": Model {
+        name: "OpenAI-compatible speech endpoint -> tts (24 kHz)",
+        footprint_gb: 0.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8098/health",
+        ),
+        health_contains: Some(
+            "BaseHTTP",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 30,
+                failure_threshold: 3,
+                backoff_sec: 30,
+                max_backoff_sec: 600,
+                startup_timeout_sec: 60,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            -50,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "python",
+            engine: None,
+            executable: None,
+            port: Some(
+                8098,
+            ),
+            command: [
+                "~/tts-compat/.venv/bin/python",
+                "~/tts-compat/shim.py",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {
+                "SAMPLE_RATE": "24000",
+                "TTS_UPSTREAM": "http://127.0.0.1:8097",
+            },
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "tts-fast": Model {
+        name: "Fast TTS 0.5B (turbo)",
+        footprint_gb: 5.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8095/health",
+        ),
+        health_contains: Some(
+            "\"model_loaded\":true",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 30,
+                failure_threshold: 3,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 180,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: None,
+        limits: None,
+        serve: Serve {
+            kind: "uvicorn",
+            engine: None,
+            executable: None,
+            port: Some(
+                8095,
+            ),
+            command: [
+                "~/fast-tts-env/bin/uvicorn",
+                "voice_api:app",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8095",
+                "--app-dir",
+                "~/fast-tts",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {
+                "TTS_MODEL_DIR": "/home/sam/models/fast-tts",
+                "TTS_VARIANT": "turbo",
+            },
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "tts-old": Model {
+        name: "Earlier voice-clone TTS (24 kHz)",
+        footprint_gb: 24.0,
+        channel: Some(
+            "retired",
+        ),
+        health: Some(
+            "http://localhost:8099/health",
+        ),
+        health_contains: Some(
+            "\"model_loaded\":true",
+        ),
+        supervision: None,
+        shed_priority: None,
+        limits: None,
+        serve: Serve {
+            kind: "exec",
+            engine: None,
+            executable: None,
+            port: Some(
+                8099,
+            ),
+            command: [
+                "/home/sam/tts-old/.venv/bin/python",
+                "/home/sam/tts-old/voice_api.py",
+            ],
+            weights: None,
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [],
+            args: {},
+            env: {
+                "PYTHONUNBUFFERED": "1",
+                "TTS_MODEL_DIR": "/home/sam/models/tts-old",
+                "TTS_PORT": "8099",
+            },
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+    "vision": Model {
+        name: "Vision model 8B (stills only)",
+        footprint_gb: 14.0,
+        channel: Some(
+            "stable",
+        ),
+        health: Some(
+            "http://localhost:8005/v1/models",
+        ),
+        health_contains: Some(
+            "vision",
+        ),
+        supervision: Some(
+            Supervision {
+                restart: Always,
+                check_interval_sec: 30,
+                failure_threshold: 3,
+                backoff_sec: 60,
+                max_backoff_sec: 900,
+                startup_timeout_sec: 900,
+                probe_timeout_ms: None,
+                liveness: None,
+            },
+        ),
+        shed_priority: Some(
+            20,
+        ),
+        limits: None,
+        serve: Serve {
+            kind: "vllm",
+            engine: None,
+            executable: Some(
+                "~/vllm-env/bin/vllm",
+            ),
+            port: Some(
+                8005,
+            ),
+            command: [],
+            weights: Some(
+                "~/models/vision-8b",
+            ),
+            entry: None,
+            app: None,
+            app_dir: None,
+            served_name: [
+                "vision",
+            ],
+            args: {
+                "gpu-memory-utilization": Number(0.11),
+                "limit-mm-per-prompt": String("{\"image\": 2, \"video\": 0}"),
+                "max-model-len": Number(16384),
+            },
+            env: {},
+        },
+        gateway: ModelGateway {
+            upstream: None,
+            rewrite_model: false,
+        },
+    },
+}

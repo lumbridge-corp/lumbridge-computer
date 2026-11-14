@@ -1,0 +1,113 @@
+apiVersion: lumbridge/v1
+kind: Registry
+version: 1
+
+# Two 35B brains on one box: the main brain on :8001 and an alternative
+# (another fine-tune of the same base) on :8002. brain, embed and rerank are
+# the same entries as in the test fixture box (tests/fixtures/box), with
+# `${PORT}` in place of a hand-copied port; brain-alt is written as a delta
+# with `extends:`. Check what it resolves to with
+# `lumbridge-computer model show brain-alt`.
+
+models:
+  brain:
+    name: "General brain 35B-A3B (NVFP4, vision, MTP)"
+    footprint_gb: 40
+    shed_priority: -100
+    channel: stable
+    health: http://localhost:${PORT}/v1/models
+    health_contains: "\"root\":\"/home/sam/models/brain-35b-a3b-nvfp4\""
+    supervision:
+      restart: always
+      check_interval_sec: 15
+      failure_threshold: 2
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 2700
+      liveness:
+        kind: vllm-metrics
+        stall_sec: 300
+        chat_probe:
+          interval_sec: 120
+          timeout_sec: 30
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8001
+      weights: /home/sam/models/brain-35b-a3b-nvfp4
+      served_name:
+      - brain
+      - general-35b
+      args:
+        max-model-len: 131072
+        kv-cache-dtype: fp8
+        gpu-memory-utilization: 0.3
+        max-num-seqs: 4
+        max-num-batched-tokens: 4096
+        enable-prefix-caching: true
+        limit-mm-per-prompt: "{\"image\": 4, \"video\": 0}"
+        enable-auto-tool-choice: true
+        tool-call-parser: qwen3_coder
+        reasoning-parser: qwen3
+        speculative-config: '{"method":"mtp","num_speculative_tokens":3}'
+      env:
+        HF_HUB_OFFLINE: "1"
+        PATH: /home/sam/vllm-env/bin:/usr/local/cuda/bin:/usr/local/bin:/usr/bin:/bin
+        MAX_JOBS: "4"
+
+  # Same recipe, supervision and liveness; only what differs is written down.
+  # served_name is a list, so it is replaced (not appended to): brain-alt does
+  # not answer to `brain`. health follows ${PORT} to :8002 by itself.
+  brain-alt:
+    extends: brain
+    name: "Alternative brain 35B-A3B (NVFP4, vision, MTP)"
+    shed_priority: -50  # under memory pressure, shed before the main brain
+    health_contains: "\"root\":\"/home/sam/models/brain-alt-35b-a3b-nvfp4\""
+    serve:
+      port: 8002
+      weights: /home/sam/models/brain-alt-35b-a3b-nvfp4
+      served_name: [brain-alt]
+
+  embed:
+    name: "Embedding model 1B (NVFP4)"
+    footprint_gb: 3
+    shed_priority: 0
+    channel: stable
+    health: "http://localhost:8012/v1/models"
+    health_contains: "embed"
+    supervision: {restart: always, check_interval_sec: 10, failure_threshold: 2, backoff_sec: 30, max_backoff_sec: 600, startup_timeout_sec: 600}
+    serve:
+      kind: vllm
+      executable: "~/vllm-env/bin/vllm"
+      port: 8012
+      weights: "~/models/embed-1b-nvfp4"
+      served_name:
+        - embed
+      args:
+        runner: pooling
+        max-model-len: 32768
+        gpu-memory-utilization: 0.02
+        enforce-eager: true
+
+  rerank:
+    name: "Reranker 1B (BF16, cross-encoder)"
+    footprint_gb: 5
+    shed_priority: 0
+    channel: stable
+    health: "http://localhost:8015/v1/models"
+    health_contains: "rerank"
+    supervision: {restart: always, check_interval_sec: 10, failure_threshold: 2, backoff_sec: 30, max_backoff_sec: 600, startup_timeout_sec: 600}
+    serve:
+      kind: vllm
+      executable: "~/vllm-env/bin/vllm"
+      port: 8015
+      weights: "~/models/rerank-1b"
+      served_name:
+        - rerank
+      args:
+        runner: pooling
+        trust-remote-code: true
+        chat-template: "/home/sam/models/rerank-1b/rerank.jinja"
+        max-model-len: 8192
+        gpu-memory-utilization: 0.03
+        enforce-eager: true

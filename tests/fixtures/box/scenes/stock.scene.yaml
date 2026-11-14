@@ -1,0 +1,18 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: stock
+  version: 1
+  description: "Long-context brain, eyes, ears and two voices."
+  author: lumbridge-computer
+  tags: [brain, voice, long-context]
+models:
+  - brain-long
+  - asr
+  - tts
+  - vision
+  - tts-fast
+budget_gb: 100
+activation:
+  order: footprint-asc
+  wait_healthy: true

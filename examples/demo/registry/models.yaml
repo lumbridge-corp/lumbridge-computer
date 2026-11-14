@@ -1,0 +1,34 @@
+apiVersion: lumbridge/v1
+version: 1
+
+# GPU-free demo registry: each "model" is just a tiny HTTP server so you can watch
+# Lumbridge Computer activate scenes, swap models and run the watchdog on any Linux box.
+# Run from the repo root:  lumbridge-computer --root examples/demo scene activate two
+
+models:
+  alpha:
+    name: "Demo Alpha (http.server)"
+    footprint_gb: 1
+    health: "http://127.0.0.1:9101/"
+    serve:
+      kind: exec
+      port: 9101
+      command: ["python3", "-m", "http.server", "9101", "--bind", "127.0.0.1"]
+
+  beta:
+    name: "Demo Beta (http.server)"
+    footprint_gb: 1
+    health: "http://127.0.0.1:9102/"
+    serve:
+      kind: exec
+      port: 9102
+      command: ["python3", "-m", "http.server", "9102", "--bind", "127.0.0.1"]
+
+  gamma:
+    name: "Demo Gamma (http.server)"
+    footprint_gb: 1
+    health: "http://127.0.0.1:9103/"
+    serve:
+      kind: exec
+      port: 9103
+      command: ["python3", "-m", "http.server", "9103", "--bind", "127.0.0.1"]

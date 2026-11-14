@@ -1,0 +1,15 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: sglang
+  version: 1
+  description: "A brain on SGLang."
+  author: lumbridge-computer
+  tags: [brain, sglang]
+models:
+  - sglang-brain
+  - embed
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

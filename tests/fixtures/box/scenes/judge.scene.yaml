@@ -1,0 +1,17 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: judge
+  version: 1
+  description: "Brain and an independent judge."
+  author: lumbridge-computer
+  tags: [brain, eval]
+models:
+  - brain
+  - judge
+  - embed
+  - rerank
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

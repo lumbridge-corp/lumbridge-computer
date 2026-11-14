@@ -1,0 +1,64 @@
+# box1: the whole box's desired state for Lumbridge Computer (see docs/box.md).
+# Check it with
+#   lumbridge-computer doctor --config lumbridge-computer.toml
+#   lumbridge-computer apply --dry-run --config lumbridge-computer.toml   # must say "no changes"
+# Unknown keys are an error, so a typo never silently passes.
+
+[box]
+name = "box1"
+hardware = "dgx-spark"
+arch = "aarch64"
+os = "ubuntu-24.04"
+
+[memory]
+pool = "unified"
+# MemTotal 121.7 GB minus the 8.5 GB Supabase reservation; the governor caps every
+# Scene budget here (the `everything` Scene asks for 111).
+budget_gb = 113
+safety_margin_gb = 8
+watchdog_floor_gb = 3
+
+[models]
+# The models root: registry/, scenes/ and the .compute/ state of the running agent.
+root = "~/lumbridge-computer"
+desired_scene = "everything"
+
+[supabase]
+project = "lumbridge-supabase"
+dir = "~/supabase"
+# Upgraded with update.sh (.supabase-version says v0.8.4).
+upstream_ref = "self-hosted/v0.8.4"
+upstream_commit = "189adda99d1b56da55fc5a6ee3f849354aaea92a"
+overlay = "lumbridge.override.yml"
+slice = "lumbridge-server.slice"
+reservation_gb = 8.5
+public_url = "https://box1.tail0000.ts.net:8443"
+tailnet_port = 8443
+
+[tailscale]
+tailnet = "tail0000.ts.net"
+hostname = "box1"
+
+[[tailscale.routes]]
+https_port = 10000
+path = "/"
+proxy = "http://127.0.0.1:8020"
+owner = "router"
+
+[[tailscale.routes]]
+https_port = 443
+path = "/"
+proxy = "http://127.0.0.1:8099"
+owner = "tts-lab"
+
+[[tailscale.routes]]
+https_port = 8443
+path = "/"
+proxy = "http://127.0.0.1:8000"
+owner = "supabase"
+
+[[tailscale.routes]]
+https_port = 8484
+path = "/"
+proxy = "http://127.0.0.1:8484"
+owner = "demo"

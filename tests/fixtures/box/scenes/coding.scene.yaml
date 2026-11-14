@@ -1,0 +1,16 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: coding
+  version: 1
+  description: "Coding model next to the general brain."
+  author: lumbridge-computer
+  tags: [coding]
+models:
+  - coder
+  - brain
+  - embed
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

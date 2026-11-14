@@ -1,0 +1,29 @@
+# fixture: capture of a NeMo ASR speech server's /metrics (127.0.0.1:8791/metrics). Untrimmed.
+# HELP speech_requests_total HTTP requests served (health and metrics excluded)
+# TYPE speech_requests_total counter
+speech_requests_total{model="speech-asr",route="/v1/audio/transcriptions",status="200"} 1330
+speech_requests_total{model="speech-asr",route="/v1/boosting",status="200"} 3
+speech_requests_total{model="speech-asr",route="/v1/capture",status="200"} 2
+speech_requests_total{model="speech-asr",route="other",status="404"} 12893
+# HELP speech_request_seconds_total wall seconds spent serving HTTP requests
+# TYPE speech_request_seconds_total counter
+speech_request_seconds_total{model="speech-asr",route="/v1/audio/transcriptions"} 390.4580
+speech_request_seconds_total{model="speech-asr",route="/v1/boosting"} 0.0131
+speech_request_seconds_total{model="speech-asr",route="/v1/capture"} 3.0448
+speech_request_seconds_total{model="speech-asr",route="other"} 4.7694
+# HELP speech_audio_seconds_total seconds of audio processed
+# TYPE speech_audio_seconds_total counter
+speech_audio_seconds_total{model="speech-asr",source="http"} 5099.112
+speech_audio_seconds_total{model="speech-asr",source="stream"} 54.432
+# HELP speech_stream_sessions_total websocket sessions opened
+# TYPE speech_stream_sessions_total counter
+speech_stream_sessions_total{model="speech-asr",route="/v1/stream"} 12
+# HELP speech_stream_seconds_total websocket session wall seconds (closed sessions)
+# TYPE speech_stream_seconds_total counter
+speech_stream_seconds_total{model="speech-asr",route="/v1/stream"} 61.459
+# HELP speech_stream_active websocket sessions open now
+# TYPE speech_stream_active gauge
+speech_stream_active{model="speech-asr"} 0
+# HELP speech_process_start_time_seconds process start, unix seconds
+# TYPE speech_process_start_time_seconds gauge
+speech_process_start_time_seconds{model="speech-asr"} 1793740525

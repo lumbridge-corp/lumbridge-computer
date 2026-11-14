@@ -1,0 +1,18 @@
+/target
+.compute/
+eval-results/
+**/*.rs.bk
+Cargo.lock.orig
+*.log
+.DS_Store
+
+# Hand-made snapshots taken before a registry or scene edit. Local safety
+# copies, not history — git already keeps the history.
+*.bak
+*.bak-*
+*.bak.*
+
+__pycache__/
+*.pyc
+.env
+.env.*

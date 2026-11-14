@@ -1,0 +1,92 @@
+apiVersion: lumbridge/v1
+kind: Registry
+version: 1
+
+# One brain with sleep on: a registry delta to try a sleep/wake cycle on a
+# real model. Not a whole registry: merge this one entry into the box
+# registry. It is the fixture box's `brain` plus the `sleep:` block and a
+# gateway upstream.
+#
+# What changes at launch (`lumbridge-computer model show brain`):
+#   --host 127.0.0.1                  (dev mode exposes /collective_rpc)
+#   --enable-sleep-mode
+#   --worker-extension-cls lumbridge_computer_sleep_ext.LumbridgeComputerSleepExt
+#   VLLM_SERVER_DEV_MODE=1, PYTHONPATH=<extension dir>
+# Traffic: gateway :8011 -> proxy 127.0.0.1:8041 -> 127.0.0.1:8001.
+#
+# Before you try it (docs/sleep.md, "Security: loopback only"):
+#   1. Move every client that calls :8001 directly to the gateway (:8011).
+#   2. Make sure any proxy in front of the engine refuses vLLM's dev-mode routes,
+#      or listens on 127.0.0.1 only.
+#   3. Install the extension where the binary finds it without configuration:
+#      ~/.local/share/lumbridge-computer/assets/vllm/lumbridge_computer_sleep_ext.py
+#      (with the binary in ~/.local/bin), or set serve.sleep.extension_dir.
+#   4. Only resident models are refused by `lumbridge-computer model sleep`: the
+#      Scene must list the brain as sleepable, e.g.
+#        modes:
+#          brain: {mode: sleepable, idle_sec: 0}   # never slept for idleness
+#
+# The test: activate (cold start, several minutes), note
+# vllm:spec_decode_num_accepted_tokens_total / ..._num_draft_tokens_total over a
+# few chats, `lumbridge-computer model sleep brain`, record the sleeping
+# footprint (`lumbridge-computer status`), send a `model: brain` chat through
+# :8011 (it is held and wakes the brain), compare text and acceptance. A wake
+# that fails stops the brain; the next request cold-starts it. Rollback: remove
+# the `sleep:` block and the Scene's `modes:` entry, then restart the brain.
+
+models:
+  brain:
+    name: "General brain 35B-A3B (NVFP4, vision, MTP)"
+    gateway:
+      # Requests for this model go through a local tracing proxy that forwards
+      # to 127.0.0.1:8001 (any OpenAI-compatible proxy works).
+      upstream: 127.0.0.1:8041
+    footprint_gb: 40
+    shed_priority: -100
+    channel: stable
+    health: http://localhost:8001/v1/models
+    health_contains: "\"root\":\"/home/sam/models/brain-35b-a3b-nvfp4\""
+    supervision:
+      restart: always
+      check_interval_sec: 15
+      failure_threshold: 2
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 2700
+      liveness:
+        kind: vllm-metrics
+        stall_sec: 300
+        chat_probe:
+          interval_sec: 120
+          timeout_sec: 30
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8001
+      weights: /home/sam/models/brain-35b-a3b-nvfp4
+      # Level 2 + the worker extension + loopback bind (see the header).
+      # Defaults: footprint_gb 12 (max(6, 0.3 x 40); replace with the measured
+      # value), sleep_timeout_sec 120.
+      sleep:
+        level: 2
+        wake_timeout_sec: 60
+        # extension_dir: ~/lumbridge-computer/assets/vllm   # only if not installed where the binary looks
+      served_name:
+      - brain
+      - general-35b
+      args:
+        max-model-len: 131072
+        kv-cache-dtype: fp8
+        gpu-memory-utilization: 0.3
+        max-num-seqs: 4
+        max-num-batched-tokens: 4096
+        enable-prefix-caching: true
+        limit-mm-per-prompt: "{\"image\": 4, \"video\": 0}"
+        enable-auto-tool-choice: true
+        tool-call-parser: qwen3_coder
+        reasoning-parser: qwen3
+        speculative-config: '{"method":"mtp","num_speculative_tokens":3}'
+      env:
+        HF_HUB_OFFLINE: "1"
+        PATH: /home/sam/vllm-env/bin:/usr/local/cuda/bin:/usr/local/bin:/usr/bin:/bin
+        MAX_JOBS: "4"

@@ -1,0 +1,21 @@
+apiVersion: lumbridge/v1
+kind: EvalSuite
+metadata:
+  name: performance
+  version: 1
+  description: "Repeated streamed requests measuring TTFT, client-observed prefill, and decode throughput."
+  tags: [performance, latency, throughput]
+defaults:
+  max_tokens: 256
+  temperature: 0.0
+  repeat: 3
+  system: "Answer directly in plain text."
+cases:
+  - id: short-prefill
+    category: latency
+    prompt: "Explain why unified-memory admission control prevents system thrashing. Give a detailed answer."
+    max_tokens: 256
+  - id: structured-decode
+    category: throughput
+    prompt: "Write twenty numbered, one-sentence operational checks for an AI inference server."
+    max_tokens: 384

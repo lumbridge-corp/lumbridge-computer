@@ -1,0 +1,424 @@
+# fixture: capture of vllm-omni serve --omni /metrics (VoxCPM2 TTS on 127.0.0.1:8097; replica/stage labels).
+# Trimmed: histogram _bucket series and python_/process_ collectors removed.
+# HELP vllm_omni:num_requests_running Number of requests currently running across all pipeline stages.
+# TYPE vllm_omni:num_requests_running gauge
+vllm_omni:num_requests_running{model_name="/home/sam/models/VoxCPM2"} 0.0
+# HELP vllm_omni:num_requests_waiting Number of requests waiting to be scheduled.
+# TYPE vllm_omni:num_requests_waiting gauge
+vllm_omni:num_requests_waiting{model_name="/home/sam/models/VoxCPM2"} 0.0
+# HELP vllm_omni:requests_success_total Total requests by completion reason (stop / length / abort / ...). Aborts cover client-disconnect / cancellation paths in addition to upstream FinishReason.ABORT.
+# TYPE vllm_omni:requests_success_total counter
+vllm_omni:requests_success_total{finished_reason="stop",model_name="/home/sam/models/VoxCPM2"} 1455.0
+# HELP vllm_omni:requests_success_created Total requests by completion reason (stop / length / abort / ...). Aborts cover client-disconnect / cancellation paths in addition to upstream FinishReason.ABORT.
+# TYPE vllm_omni:requests_success_created gauge
+vllm_omni:requests_success_created{finished_reason="stop",model_name="/home/sam/models/VoxCPM2"} 1.7937407198434808e+09
+# HELP vllm_omni:e2e_request_latency_s Pipeline-global end-to-end request latency in seconds (user arrival to complete response).
+# TYPE vllm_omni:e2e_request_latency_s histogram
+vllm_omni:e2e_request_latency_s_count{model_name="/home/sam/models/VoxCPM2"} 1455.0
+vllm_omni:e2e_request_latency_s_sum{model_name="/home/sam/models/VoxCPM2"} 1001.9412024021149
+# HELP vllm_omni:e2e_request_latency_s_created Pipeline-global end-to-end request latency in seconds (user arrival to complete response).
+# TYPE vllm_omni:e2e_request_latency_s_created gauge
+vllm_omni:e2e_request_latency_s_created{model_name="/home/sam/models/VoxCPM2"} 1.793740577857746e+09
+# HELP vllm_omni:prompt_tokens_total Total prompt (input) tokens processed across all pipeline stages.
+# TYPE vllm_omni:prompt_tokens_total counter
+vllm_omni:prompt_tokens_total{model_name="/home/sam/models/VoxCPM2"} 140001.0
+# HELP vllm_omni:prompt_tokens_created Total prompt (input) tokens processed across all pipeline stages.
+# TYPE vllm_omni:prompt_tokens_created gauge
+vllm_omni:prompt_tokens_created{model_name="/home/sam/models/VoxCPM2"} 1.7937405778577702e+09
+# HELP vllm_omni:generation_tokens_total Total generation (output) tokens produced across all pipeline stages.
+# TYPE vllm_omni:generation_tokens_total counter
+vllm_omni:generation_tokens_total{model_name="/home/sam/models/VoxCPM2"} 11700.0
+# HELP vllm_omni:generation_tokens_created Total generation (output) tokens produced across all pipeline stages.
+# TYPE vllm_omni:generation_tokens_created gauge
+vllm_omni:generation_tokens_created{model_name="/home/sam/models/VoxCPM2"} 1.7937405778577752e+09
+# HELP vllm_omni:stage_gen_time_s Per-stage generation time in seconds for diffusion / image stages.
+# TYPE vllm_omni:stage_gen_time_s histogram
+vllm_omni:stage_gen_time_s_count{model_name="/home/sam/models/VoxCPM2",stage="0",stage_type="llm"} 1455.0
+vllm_omni:stage_gen_time_s_sum{model_name="/home/sam/models/VoxCPM2",stage="0",stage_type="llm"} 1000.9510226249695
+# HELP vllm_omni:stage_gen_time_s_created Per-stage generation time in seconds for diffusion / image stages.
+# TYPE vllm_omni:stage_gen_time_s_created gauge
+vllm_omni:stage_gen_time_s_created{model_name="/home/sam/models/VoxCPM2",stage="0",stage_type="llm"} 1.7937407198434052e+09
+# HELP vllm_omni:request_queue_wait_s Per-request queue wait between submit arrival and stage submit, in seconds.
+# TYPE vllm_omni:request_queue_wait_s histogram
+vllm_omni:request_queue_wait_s_count{model_name="/home/sam/models/VoxCPM2"} 1455.0
+vllm_omni:request_queue_wait_s_sum{model_name="/home/sam/models/VoxCPM2"} 0.4014574195455225
+# HELP vllm_omni:request_queue_wait_s_created Per-request queue wait between submit arrival and stage submit, in seconds.
+# TYPE vllm_omni:request_queue_wait_s_created gauge
+vllm_omni:request_queue_wait_s_created{model_name="/home/sam/models/VoxCPM2"} 1.7937405778577802e+09
+# HELP vllm_omni:stage_waiting_requests Sum of the latest scheduler waiting snapshots across a stage's replicas; diffusion snapshots update when outputs arrive.
+# TYPE vllm_omni:stage_waiting_requests gauge
+vllm_omni:stage_waiting_requests{model_name="/home/sam/models/VoxCPM2",stage="0"} 0.0
+# HELP vllm_omni:num_inference_steps Diffusion step count distribution per request.
+# TYPE vllm_omni:num_inference_steps histogram
+vllm_omni:num_inference_steps_count{model_name="/home/sam/models/VoxCPM2"} 0.0
+vllm_omni:num_inference_steps_sum{model_name="/home/sam/models/VoxCPM2"} 0.0
+# HELP vllm_omni:num_inference_steps_created Diffusion step count distribution per request.
+# TYPE vllm_omni:num_inference_steps_created gauge
+vllm_omni:num_inference_steps_created{model_name="/home/sam/models/VoxCPM2"} 1.793740577857793e+09
+# HELP vllm_omni:image_count_total Cumulative image count; per-model rate. Throughput recovered via rate().
+# TYPE vllm_omni:image_count_total counter
+vllm_omni:image_count_total{model_name="/home/sam/models/VoxCPM2"} 0.0
+# HELP vllm_omni:image_count_created Cumulative image count; per-model rate. Throughput recovered via rate().
+# TYPE vllm_omni:image_count_created gauge
+vllm_omni:image_count_created{model_name="/home/sam/models/VoxCPM2"} 1.793740577857807e+09
+# HELP vllm_omni:image_pixels Image pixel count distribution per request.
+# TYPE vllm_omni:image_pixels histogram
+vllm_omni:image_pixels_count{model_name="/home/sam/models/VoxCPM2"} 0.0
+vllm_omni:image_pixels_sum{model_name="/home/sam/models/VoxCPM2"} 0.0
+# HELP vllm_omni:image_pixels_created Image pixel count distribution per request.
+# TYPE vllm_omni:image_pixels_created gauge
+vllm_omni:image_pixels_created{model_name="/home/sam/models/VoxCPM2"} 1.793740577857811e+09
+# HELP vllm_omni:peak_memory_mb Peak GPU memory in MB observed during a stage's generation.
+# TYPE vllm_omni:peak_memory_mb gauge
+# HELP vllm_omni:stage_in_queue_s Time in seconds from diffusion scheduler enqueue to initial execution admission. Zero is the healthy low-load baseline and is counted.
+# TYPE vllm_omni:stage_in_queue_s histogram
+# HELP vllm_omni:requests_failed_total Total requests by failure reason. Pairs with requests_success_total (abort bucket) to give the full failure surface. Reasons are bounded to client_abort, client_disconnect, stage_error, and unknown.
+# TYPE vllm_omni:requests_failed_total counter
+# HELP vllm_omni:kv_wait_s KV cache transfer wait time per request, sliced by connector backend.
+# TYPE vllm_omni:kv_wait_s histogram
+# HELP vllm_omni:audio_ttfp_s Time from request arrival to first audio packet/frame, in seconds.
+# TYPE vllm_omni:audio_ttfp_s histogram
+# HELP vllm_omni:audio_duration_s Generated audio content duration in seconds (audio_frames / sample_rate).
+# TYPE vllm_omni:audio_duration_s histogram
+vllm_omni:audio_duration_s_count{model_name="/home/sam/models/VoxCPM2",replica="0",stage="0"} 1455.0
+vllm_omni:audio_duration_s_sum{model_name="/home/sam/models/VoxCPM2",replica="0",stage="0"} 1872.0000000000261
+# HELP vllm_omni:audio_duration_s_created Generated audio content duration in seconds (audio_frames / sample_rate).
+# TYPE vllm_omni:audio_duration_s_created gauge
+vllm_omni:audio_duration_s_created{model_name="/home/sam/models/VoxCPM2",replica="0",stage="0"} 1.793740719843631e+09
+# HELP vllm_omni:audio_rtf Audio real-time factor (stage_gen_time_s / audio_duration_s); streaming TTS requires < 1.
+# TYPE vllm_omni:audio_rtf histogram
+vllm_omni:audio_rtf_count{model_name="/home/sam/models/VoxCPM2",replica="0",stage="0"} 1455.0
+vllm_omni:audio_rtf_sum{model_name="/home/sam/models/VoxCPM2",replica="0",stage="0"} 968.8744526560447
+# HELP vllm_omni:audio_rtf_created Audio real-time factor (stage_gen_time_s / audio_duration_s); streaming TTS requires < 1.
+# TYPE vllm_omni:audio_rtf_created gauge
+vllm_omni:audio_rtf_created{model_name="/home/sam/models/VoxCPM2",replica="0",stage="0"} 1.7937407198436685e+09
+# HELP vllm_omni:audio_frames_total Cumulative audio frame count; per-model rate (not summable across models). Throughput recovered via rate().
+# TYPE vllm_omni:audio_frames_total counter
+vllm_omni:audio_frames_total{model_name="/home/sam/models/VoxCPM2",replica="0",stage="0"} 8.9856e+07
+# HELP vllm_omni:audio_frames_created Cumulative audio frame count; per-model rate (not summable across models). Throughput recovered via rate().
+# TYPE vllm_omni:audio_frames_created gauge
+vllm_omni:audio_frames_created{model_name="/home/sam/models/VoxCPM2",replica="0",stage="0"} 1.7937407198436134e+09
+# HELP vllm_omni:audio_underrun_s Per-request worst-case player-deficit in seconds (max time the player ran out of buffered audio). > 0 indicates listener experienced silent gaps.
+# TYPE vllm_omni:audio_underrun_s histogram
+# HELP vllm_omni:audio_continuity_ok_total Incremented when the request's worst underrun stayed below threshold_ms. Pair with requests_success_total to compute streaming-continuity health rate.
+# TYPE vllm_omni:audio_continuity_ok_total counter
+# HELP vllm_omni:audio_skipped_requests_total Silent-loss counter — code2wav rejected malformed codec input and returned 200 OK with empty audio.
+# TYPE vllm_omni:audio_skipped_requests_total counter
+# HELP vllm_omni:diffusion_exec_s DiT forward pass execution time per request in seconds.
+# TYPE vllm_omni:diffusion_exec_s histogram
+# HELP vllm_omni:diffusion_exec_per_step_s DiT forward pass execution time per denoising step in seconds.
+# TYPE vllm_omni:diffusion_exec_per_step_s histogram
+# HELP vllm_omni:diffusion_preprocess_s Diffusion input preprocessing time per request in seconds.
+# TYPE vllm_omni:diffusion_preprocess_s histogram
+# HELP vllm_omni:diffusion_postprocess_s Diffusion output postprocessing (VAE decode) time per request in seconds.
+# TYPE vllm_omni:diffusion_postprocess_s histogram
+# HELP vllm_omni:vae_decode_s VAE decode latency in seconds (latents -> pixels/audio/video).
+# TYPE vllm_omni:vae_decode_s histogram
+# HELP vllm_omni:diffusion_forward_s Diffusion forward-only latency in seconds (denoise loop; excludes preprocess / postprocess / VAE decode / KV load). Absent when the pipeline profiler is off.
+# TYPE vllm_omni:diffusion_forward_s histogram
+# HELP vllm_omni:diffusion_kv_load_s Diffusion KV-recv latency in seconds (AR→diffusion KV fetch; absent when the stage has no upstream KV to receive).
+# TYPE vllm_omni:diffusion_kv_load_s histogram
+# HELP vllm_omni:image_ttfp_s Image time-to-first-output in seconds (stage submit → first image materialized; non-streaming single-image). Stage-level, not e2e — excludes API queue and inter-stage transfer before the image stage.
+# TYPE vllm_omni:image_ttfp_s histogram
+# HELP vllm_omni:denoise_step_latency_s Mean per-step denoise forward latency in seconds (forward_time / num_inference_steps).
+# TYPE vllm_omni:denoise_step_latency_s histogram
+# HELP vllm_omni:transfer_size_bytes Per-transfer payload size in bytes (one observation per physical hop).
+# TYPE vllm_omni:transfer_size_bytes histogram
+# HELP vllm_omni:transfer_tx_s Sender-side time in seconds (serialize + submit to connector).
+# TYPE vllm_omni:transfer_tx_s histogram
+# HELP vllm_omni:transfer_rx_s Receiver-side time in seconds (recv + deserialize).
+# TYPE vllm_omni:transfer_rx_s histogram
+# HELP vllm_omni:transfer_in_flight_s Network in-flight time in seconds (TX done -> RX recv start).
+# TYPE vllm_omni:transfer_in_flight_s histogram
+# HELP vllm:estimated_flops_per_gpu_total Estimated number of floating point operations per GPU (for Model Flops Utilization calculations).
+# TYPE vllm:estimated_flops_per_gpu_total counter
+vllm:estimated_flops_per_gpu_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:estimated_flops_per_gpu_created Estimated number of floating point operations per GPU (for Model Flops Utilization calculations).
+# TYPE vllm:estimated_flops_per_gpu_created gauge
+vllm:estimated_flops_per_gpu_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721575239e+09
+# HELP vllm:estimated_read_bytes_per_gpu_total Estimated number of bytes read from memory per GPU (for Model Flops Utilization calculations).
+# TYPE vllm:estimated_read_bytes_per_gpu_total counter
+vllm:estimated_read_bytes_per_gpu_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:estimated_read_bytes_per_gpu_created Estimated number of bytes read from memory per GPU (for Model Flops Utilization calculations).
+# TYPE vllm:estimated_read_bytes_per_gpu_created gauge
+vllm:estimated_read_bytes_per_gpu_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672157543e+09
+# HELP vllm:estimated_write_bytes_per_gpu_total Estimated number of bytes written to memory per GPU (for Model Flops Utilization calculations).
+# TYPE vllm:estimated_write_bytes_per_gpu_total counter
+vllm:estimated_write_bytes_per_gpu_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:estimated_write_bytes_per_gpu_created Estimated number of bytes written to memory per GPU (for Model Flops Utilization calculations).
+# TYPE vllm:estimated_write_bytes_per_gpu_created gauge
+vllm:estimated_write_bytes_per_gpu_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721575544e+09
+# HELP vllm:num_requests_running Number of requests in model execution batches.
+# TYPE vllm:num_requests_running gauge
+vllm:num_requests_running{model_name="voxcpm2",replica="0",stage="0"} 1.0
+# HELP vllm:num_requests_waiting Number of requests waiting to be processed.
+# TYPE vllm:num_requests_waiting gauge
+vllm:num_requests_waiting{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:num_requests_waiting_by_reason Number of waiting requests by reason. Reason labels: 'capacity' = waiting for scheduling capacity; 'deferred' = deferred by transient constraints (LoRA budget, KV transfer, blocked status). Sum of all reasons equals vllm:num_requests_waiting.
+# TYPE vllm:num_requests_waiting_by_reason gauge
+vllm:num_requests_waiting_by_reason{model_name="voxcpm2",reason="capacity",replica="0",stage="0"} 0.0
+vllm:num_requests_waiting_by_reason{model_name="voxcpm2",reason="deferred",replica="0",stage="0"} 0.0
+# HELP vllm:engine_sleep_state Engine sleep state; awake = 0 means engine is sleeping; awake = 1 means engine is awake; weights_offloaded = 1 means sleep level 1; discard_all = 1 means sleep level 2.
+# TYPE vllm:engine_sleep_state gauge
+vllm:engine_sleep_state{model_name="voxcpm2",replica="0",sleep_state="awake",stage="0"} 1.0
+vllm:engine_sleep_state{model_name="voxcpm2",replica="0",sleep_state="weights_offloaded",stage="0"} 0.0
+vllm:engine_sleep_state{model_name="voxcpm2",replica="0",sleep_state="discard_all",stage="0"} 0.0
+# HELP vllm:kv_cache_usage_perc KV-cache usage. 1 means 100 percent usage.
+# TYPE vllm:kv_cache_usage_perc gauge
+vllm:kv_cache_usage_perc{model_name="voxcpm2",replica="0",stage="0"} 0.0032985156679494754
+# HELP vllm:prefix_cache_queries_total Prefix cache queries, in terms of number of queried tokens.
+# TYPE vllm:prefix_cache_queries_total counter
+vllm:prefix_cache_queries_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:prefix_cache_queries_created Prefix cache queries, in terms of number of queried tokens.
+# TYPE vllm:prefix_cache_queries_created gauge
+vllm:prefix_cache_queries_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721576698e+09
+# HELP vllm:prefix_cache_hits_total Prefix cache hits, in terms of number of cached tokens.
+# TYPE vllm:prefix_cache_hits_total counter
+vllm:prefix_cache_hits_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:prefix_cache_hits_created Prefix cache hits, in terms of number of cached tokens.
+# TYPE vllm:prefix_cache_hits_created gauge
+vllm:prefix_cache_hits_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721576803e+09
+# HELP vllm:external_prefix_cache_queries_total External prefix cache queries from KV connector cross-instance cache sharing, in terms of number of queried tokens.
+# TYPE vllm:external_prefix_cache_queries_total counter
+vllm:external_prefix_cache_queries_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:external_prefix_cache_queries_created External prefix cache queries from KV connector cross-instance cache sharing, in terms of number of queried tokens.
+# TYPE vllm:external_prefix_cache_queries_created gauge
+vllm:external_prefix_cache_queries_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672157689e+09
+# HELP vllm:external_prefix_cache_hits_total External prefix cache hits from KV connector cross-instance cache sharing, in terms of number of cached tokens.
+# TYPE vllm:external_prefix_cache_hits_total counter
+vllm:external_prefix_cache_hits_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:external_prefix_cache_hits_created External prefix cache hits from KV connector cross-instance cache sharing, in terms of number of cached tokens.
+# TYPE vllm:external_prefix_cache_hits_created gauge
+vllm:external_prefix_cache_hits_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721576974e+09
+# HELP vllm:mm_cache_queries_total Multi-modal cache queries, in terms of number of queried items.
+# TYPE vllm:mm_cache_queries_total counter
+vllm:mm_cache_queries_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:mm_cache_queries_created Multi-modal cache queries, in terms of number of queried items.
+# TYPE vllm:mm_cache_queries_created gauge
+vllm:mm_cache_queries_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721577063e+09
+# HELP vllm:mm_cache_hits_total Multi-modal cache hits, in terms of number of cached items.
+# TYPE vllm:mm_cache_hits_total counter
+vllm:mm_cache_hits_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:mm_cache_hits_created Multi-modal cache hits, in terms of number of cached items.
+# TYPE vllm:mm_cache_hits_created gauge
+vllm:mm_cache_hits_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672157716e+09
+# HELP vllm:num_preemptions_total Cumulative number of preemption from the engine.
+# TYPE vllm:num_preemptions_total counter
+vllm:num_preemptions_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:num_preemptions_created Cumulative number of preemption from the engine.
+# TYPE vllm:num_preemptions_created gauge
+vllm:num_preemptions_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672157726e+09
+# HELP vllm:prompt_tokens_total Number of prefill tokens processed.
+# TYPE vllm:prompt_tokens_total counter
+vllm:prompt_tokens_total{model_name="voxcpm2",replica="0",stage="0"} 140001.0
+# HELP vllm:prompt_tokens_created Number of prefill tokens processed.
+# TYPE vllm:prompt_tokens_created gauge
+vllm:prompt_tokens_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721577356e+09
+# HELP vllm:prompt_tokens_by_source_total Number of prompt tokens by source.
+# TYPE vllm:prompt_tokens_by_source_total counter
+vllm:prompt_tokens_by_source_total{model_name="voxcpm2",replica="0",source="local_compute",stage="0"} 140001.0
+vllm:prompt_tokens_by_source_total{model_name="voxcpm2",replica="0",source="local_cache_hit",stage="0"} 0.0
+vllm:prompt_tokens_by_source_total{model_name="voxcpm2",replica="0",source="external_kv_transfer",stage="0"} 0.0
+# HELP vllm:prompt_tokens_by_source_created Number of prompt tokens by source.
+# TYPE vllm:prompt_tokens_by_source_created gauge
+vllm:prompt_tokens_by_source_created{model_name="voxcpm2",replica="0",source="local_compute",stage="0"} 1.793740672157749e+09
+vllm:prompt_tokens_by_source_created{model_name="voxcpm2",replica="0",source="local_cache_hit",stage="0"} 1.7937406721577926e+09
+vllm:prompt_tokens_by_source_created{model_name="voxcpm2",replica="0",source="external_kv_transfer",stage="0"} 1.7937406721577973e+09
+# HELP vllm:prompt_tokens_cached_total Number of cached prompt tokens (local + external).
+# TYPE vllm:prompt_tokens_cached_total counter
+vllm:prompt_tokens_cached_total{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:prompt_tokens_cached_created Number of cached prompt tokens (local + external).
+# TYPE vllm:prompt_tokens_cached_created gauge
+vllm:prompt_tokens_cached_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721578069e+09
+# HELP vllm:generation_tokens_total Number of generation tokens processed.
+# TYPE vllm:generation_tokens_total counter
+vllm:generation_tokens_total{model_name="voxcpm2",replica="0",stage="0"} 11700.0
+# HELP vllm:generation_tokens_created Number of generation tokens processed.
+# TYPE vllm:generation_tokens_created gauge
+vllm:generation_tokens_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721578164e+09
+# HELP vllm:request_success_total Count of successfully processed requests.
+# TYPE vllm:request_success_total counter
+vllm:request_success_total{finished_reason="stop",model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_success_total{finished_reason="length",model_name="voxcpm2",replica="0",stage="0"} 0.0
+vllm:request_success_total{finished_reason="abort",model_name="voxcpm2",replica="0",stage="0"} 0.0
+vllm:request_success_total{finished_reason="error",model_name="voxcpm2",replica="0",stage="0"} 0.0
+vllm:request_success_total{finished_reason="repetition",model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:request_success_created Count of successfully processed requests.
+# TYPE vllm:request_success_created gauge
+vllm:request_success_created{finished_reason="stop",model_name="voxcpm2",replica="0",stage="0"} 1.7937406721578338e+09
+vllm:request_success_created{finished_reason="length",model_name="voxcpm2",replica="0",stage="0"} 1.7937406721578388e+09
+vllm:request_success_created{finished_reason="abort",model_name="voxcpm2",replica="0",stage="0"} 1.7937406721578434e+09
+vllm:request_success_created{finished_reason="error",model_name="voxcpm2",replica="0",stage="0"} 1.7937406721578481e+09
+vllm:request_success_created{finished_reason="repetition",model_name="voxcpm2",replica="0",stage="0"} 1.7937406721578526e+09
+# HELP vllm:request_prompt_tokens Number of prefill tokens processed.
+# TYPE vllm:request_prompt_tokens histogram
+vllm:request_prompt_tokens_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_prompt_tokens_sum{model_name="voxcpm2",replica="0",stage="0"} 140001.0
+# HELP vllm:request_prompt_tokens_created Number of prefill tokens processed.
+# TYPE vllm:request_prompt_tokens_created gauge
+vllm:request_prompt_tokens_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721578798e+09
+# HELP vllm:request_generation_tokens Number of generation tokens processed.
+# TYPE vllm:request_generation_tokens histogram
+vllm:request_generation_tokens_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_generation_tokens_sum{model_name="voxcpm2",replica="0",stage="0"} 11700.0
+# HELP vllm:request_generation_tokens_created Number of generation tokens processed.
+# TYPE vllm:request_generation_tokens_created gauge
+vllm:request_generation_tokens_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721579046e+09
+# HELP vllm:iteration_tokens_total Histogram of number of tokens per engine_step.
+# TYPE vllm:iteration_tokens_total histogram
+vllm:iteration_tokens_total_count{model_name="voxcpm2",replica="0",stage="0"} 11677.0
+vllm:iteration_tokens_total_sum{model_name="voxcpm2",replica="0",stage="0"} 151701.0
+# HELP vllm:iteration_tokens_total_created Histogram of number of tokens per engine_step.
+# TYPE vllm:iteration_tokens_total_created gauge
+vllm:iteration_tokens_total_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721579237e+09
+# HELP vllm:request_max_num_generation_tokens Histogram of maximum number of requested generation tokens.
+# TYPE vllm:request_max_num_generation_tokens histogram
+vllm:request_max_num_generation_tokens_count{model_name="voxcpm2",replica="0",stage="0"} 0.0
+vllm:request_max_num_generation_tokens_sum{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:request_max_num_generation_tokens_created Histogram of maximum number of requested generation tokens.
+# TYPE vllm:request_max_num_generation_tokens_created gauge
+vllm:request_max_num_generation_tokens_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721579437e+09
+# HELP vllm:request_params_n Histogram of the n request parameter.
+# TYPE vllm:request_params_n histogram
+vllm:request_params_n_count{model_name="voxcpm2",replica="0",stage="0"} 0.0
+vllm:request_params_n_sum{model_name="voxcpm2",replica="0",stage="0"} 0.0
+# HELP vllm:request_params_n_created Histogram of the n request parameter.
+# TYPE vllm:request_params_n_created gauge
+vllm:request_params_n_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721579618e+09
+# HELP vllm:request_params_max_tokens Histogram of the max_tokens request parameter.
+# TYPE vllm:request_params_max_tokens histogram
+vllm:request_params_max_tokens_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_params_max_tokens_sum{model_name="voxcpm2",replica="0",stage="0"} 5.95968e+06
+# HELP vllm:request_params_max_tokens_created Histogram of the max_tokens request parameter.
+# TYPE vllm:request_params_max_tokens_created gauge
+vllm:request_params_max_tokens_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721579783e+09
+# HELP vllm:time_to_first_token_seconds Histogram of time to first token in seconds.
+# TYPE vllm:time_to_first_token_seconds histogram
+vllm:time_to_first_token_seconds_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:time_to_first_token_seconds_sum{model_name="voxcpm2",replica="0",stage="0"} 364.8958613872528
+# HELP vllm:time_to_first_token_seconds_created Histogram of time to first token in seconds.
+# TYPE vllm:time_to_first_token_seconds_created gauge
+vllm:time_to_first_token_seconds_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672157996e+09
+# HELP vllm:inter_token_latency_seconds Histogram of inter-token latency in seconds.
+# TYPE vllm:inter_token_latency_seconds histogram
+vllm:inter_token_latency_seconds_count{model_name="voxcpm2",replica="0",stage="0"} 10245.0
+vllm:inter_token_latency_seconds_sum{model_name="voxcpm2",replica="0",stage="0"} 636.2906464379582
+# HELP vllm:inter_token_latency_seconds_created Histogram of inter-token latency in seconds.
+# TYPE vllm:inter_token_latency_seconds_created gauge
+vllm:inter_token_latency_seconds_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672158021e+09
+# HELP vllm:request_time_per_output_token_seconds Histogram of time_per_output_token_seconds per request.
+# TYPE vllm:request_time_per_output_token_seconds histogram
+vllm:request_time_per_output_token_seconds_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_time_per_output_token_seconds_sum{model_name="voxcpm2",replica="0",stage="0"} 98.53695049319981
+# HELP vllm:request_time_per_output_token_seconds_created Histogram of time_per_output_token_seconds per request.
+# TYPE vllm:request_time_per_output_token_seconds_created gauge
+vllm:request_time_per_output_token_seconds_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672158046e+09
+# HELP vllm:e2e_request_latency_seconds Histogram of e2e request latency in seconds.
+# TYPE vllm:e2e_request_latency_seconds histogram
+vllm:e2e_request_latency_seconds_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:e2e_request_latency_seconds_sum{model_name="voxcpm2",replica="0",stage="0"} 1001.1773891448975
+# HELP vllm:e2e_request_latency_seconds_created Histogram of e2e request latency in seconds.
+# TYPE vllm:e2e_request_latency_seconds_created gauge
+vllm:e2e_request_latency_seconds_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721580677e+09
+# HELP vllm:request_queue_time_seconds Histogram of time spent in WAITING phase for request.
+# TYPE vllm:request_queue_time_seconds histogram
+vllm:request_queue_time_seconds_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_queue_time_seconds_sum{model_name="voxcpm2",replica="0",stage="0"} 10.244418541020764
+# HELP vllm:request_queue_time_seconds_created Histogram of time spent in WAITING phase for request.
+# TYPE vllm:request_queue_time_seconds_created gauge
+vllm:request_queue_time_seconds_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672158089e+09
+# HELP vllm:request_inference_time_seconds Histogram of time spent in RUNNING phase for request.
+# TYPE vllm:request_inference_time_seconds histogram
+vllm:request_inference_time_seconds_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_inference_time_seconds_sum{model_name="voxcpm2",replica="0",stage="0"} 973.7733322631302
+# HELP vllm:request_inference_time_seconds_created Histogram of time spent in RUNNING phase for request.
+# TYPE vllm:request_inference_time_seconds_created gauge
+vllm:request_inference_time_seconds_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721581268e+09
+# HELP vllm:request_prefill_time_seconds Histogram of time spent in PREFILL phase for request.
+# TYPE vllm:request_prefill_time_seconds histogram
+vllm:request_prefill_time_seconds_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_prefill_time_seconds_sum{model_name="voxcpm2",replica="0",stage="0"} 337.48268582517204
+# HELP vllm:request_prefill_time_seconds_created Histogram of time spent in PREFILL phase for request.
+# TYPE vllm:request_prefill_time_seconds_created gauge
+vllm:request_prefill_time_seconds_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672158147e+09
+# HELP vllm:request_decode_time_seconds Histogram of time spent in DECODE phase for request.
+# TYPE vllm:request_decode_time_seconds histogram
+vllm:request_decode_time_seconds_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_decode_time_seconds_sum{model_name="voxcpm2",replica="0",stage="0"} 636.2906464379582
+# HELP vllm:request_decode_time_seconds_created Histogram of time spent in DECODE phase for request.
+# TYPE vllm:request_decode_time_seconds_created gauge
+vllm:request_decode_time_seconds_created{model_name="voxcpm2",replica="0",stage="0"} 1.793740672158198e+09
+# HELP vllm:request_prefill_kv_computed_tokens Histogram of new KV tokens computed during prefill (excluding cached tokens).
+# TYPE vllm:request_prefill_kv_computed_tokens histogram
+vllm:request_prefill_kv_computed_tokens_count{model_name="voxcpm2",replica="0",stage="0"} 1455.0
+vllm:request_prefill_kv_computed_tokens_sum{model_name="voxcpm2",replica="0",stage="0"} 140001.0
+# HELP vllm:request_prefill_kv_computed_tokens_created Histogram of new KV tokens computed during prefill (excluding cached tokens).
+# TYPE vllm:request_prefill_kv_computed_tokens_created gauge
+vllm:request_prefill_kv_computed_tokens_created{model_name="voxcpm2",replica="0",stage="0"} 1.7937406721582212e+09
+# HELP http_requests_total Total number of requests by method, status and handler.
+# TYPE http_requests_total counter
+http_requests_total{handler="/v1/models",method="GET",status="2xx"} 909132.0
+http_requests_total{handler="/v1/audio/speech",method="POST",status="2xx"} 1454.0
+http_requests_total{handler="none",method="GET",status="4xx"} 2.0
+http_requests_total{handler="/openapi.json",method="GET",status="2xx"} 1.0
+# HELP http_requests_created Total number of requests by method, status and handler.
+# TYPE http_requests_created gauge
+http_requests_created{handler="/v1/models",method="GET",status="2xx"} 1.7937407201841388e+09
+http_requests_created{handler="/v1/audio/speech",method="POST",status="2xx"} 1.7937408172394664e+09
+http_requests_created{handler="none",method="GET",status="4xx"} 1.7937672934419463e+09
+http_requests_created{handler="/openapi.json",method="GET",status="2xx"} 1.7937677341974208e+09
+# HELP http_request_size_bytes Content length of incoming requests by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_request_size_bytes summary
+http_request_size_bytes_count{handler="/v1/models"} 909132.0
+http_request_size_bytes_sum{handler="/v1/models"} 0.0
+http_request_size_bytes_count{handler="/v1/audio/speech"} 1454.0
+http_request_size_bytes_sum{handler="/v1/audio/speech"} 572147.0
+http_request_size_bytes_count{handler="none"} 2.0
+http_request_size_bytes_sum{handler="none"} 0.0
+http_request_size_bytes_count{handler="/openapi.json"} 1.0
+http_request_size_bytes_sum{handler="/openapi.json"} 0.0
+# HELP http_request_size_bytes_created Content length of incoming requests by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_request_size_bytes_created gauge
+http_request_size_bytes_created{handler="/v1/models"} 1.7937407201841514e+09
+http_request_size_bytes_created{handler="/v1/audio/speech"} 1.7937408172394824e+09
+http_request_size_bytes_created{handler="none"} 1.7937672934419587e+09
+http_request_size_bytes_created{handler="/openapi.json"} 1.7937677341974342e+09
+# HELP http_response_size_bytes Content length of outgoing responses by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_response_size_bytes summary
+http_response_size_bytes_count{handler="/v1/models"} 909132.0
+http_response_size_bytes_sum{handler="/v1/models"} 8.28219252e+08
+http_response_size_bytes_count{handler="/v1/audio/speech"} 1454.0
+http_response_size_bytes_sum{handler="/v1/audio/speech"} 2.013696e+07
+http_response_size_bytes_count{handler="none"} 2.0
+http_response_size_bytes_sum{handler="none"} 44.0
+http_response_size_bytes_count{handler="/openapi.json"} 1.0
+http_response_size_bytes_sum{handler="/openapi.json"} 310598.0
+# HELP http_response_size_bytes_created Content length of outgoing responses by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_response_size_bytes_created gauge
+http_response_size_bytes_created{handler="/v1/models"} 1.7937407201841629e+09
+http_response_size_bytes_created{handler="/v1/audio/speech"} 1.793740817239504e+09
+http_response_size_bytes_created{handler="none"} 1.7937672934419694e+09
+http_response_size_bytes_created{handler="/openapi.json"} 1.7937677341974492e+09
+# HELP http_request_duration_highr_seconds Latency with many buckets but no API specific labels. Made for more accurate percentile calculations. 
+# TYPE http_request_duration_highr_seconds histogram
+http_request_duration_highr_seconds_count 910589.0
+http_request_duration_highr_seconds_sum 1296.4601382238625
+# HELP http_request_duration_highr_seconds_created Latency with many buckets but no API specific labels. Made for more accurate percentile calculations. 
+# TYPE http_request_duration_highr_seconds_created gauge
+http_request_duration_highr_seconds_created 1.793740672214186e+09
+# HELP http_request_duration_seconds Latency with only few buckets by handler. Made to be only used if aggregation by handler is important. 
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_count{handler="/v1/models",method="GET"} 909132.0
+http_request_duration_seconds_sum{handler="/v1/models",method="GET"} 335.5017558448682
+http_request_duration_seconds_count{handler="/v1/audio/speech",method="POST"} 1454.0
+http_request_duration_seconds_sum{handler="/v1/audio/speech",method="POST"} 960.4806363199712
+http_request_duration_seconds_count{handler="none",method="GET"} 2.0
+http_request_duration_seconds_sum{handler="none",method="GET"} 0.0007162380243244115
+http_request_duration_seconds_count{handler="/openapi.json",method="GET"} 1.0
+http_request_duration_seconds_sum{handler="/openapi.json",method="GET"} 0.47702982099872315
+# HELP http_request_duration_seconds_created Latency with only few buckets by handler. Made to be only used if aggregation by handler is important. 
+# TYPE http_request_duration_seconds_created gauge
+http_request_duration_seconds_created{handler="/v1/models",method="GET"} 1.793740720184181e+09
+http_request_duration_seconds_created{handler="/v1/audio/speech",method="POST"} 1.7937408172395282e+09
+http_request_duration_seconds_created{handler="none",method="GET"} 1.7937672934419856e+09
+http_request_duration_seconds_created{handler="/openapi.json",method="GET"} 1.7937677341974688e+09

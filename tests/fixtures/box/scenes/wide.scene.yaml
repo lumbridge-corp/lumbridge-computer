@@ -1,0 +1,17 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: wide
+  version: 1
+  description: "Long-context brain, coder, judge and reranker on a larger budget."
+  author: lumbridge-computer
+  tags: [brain, coding]
+models:
+  - brain-long
+  - coder
+  - judge
+  - rerank
+budget_gb: 111
+activation:
+  order: listed
+  wait_healthy: true

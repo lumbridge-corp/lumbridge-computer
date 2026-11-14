@@ -1,0 +1,16 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: vision
+  version: 1
+  description: "Long-context brain with a vision model."
+  author: lumbridge-computer
+  tags: [brain, vision]
+models:
+  - brain-long
+  - vision
+  - embed
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

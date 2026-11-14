@@ -1,0 +1,8 @@
+# Upstream self-hosted Supabase docker/ release this overlay is built and tested on.
+# Bump deliberately: read docker/CHANGELOG.md and upgrades.json for the range, back up,
+# then re-run install.sh against a scratch directory before touching a live box.
+# commit is the tag peeled to its commit (git ls-remote ... 'refs/tags/<ref>^{}'),
+# which is what `git rev-parse HEAD` returns after cloning the tag.
+repo=https://github.com/supabase/supabase.git
+ref=self-hosted/v0.8.4
+commit=189adda99d1b56da55fc5a6ee3f849354aaea92a

@@ -1,0 +1,84 @@
+# Lumbridge Computer overlay on upstream self-hosted Supabase (docker/ at the tag pinned in
+# UPSTREAM). Loaded after docker-compose.yml via COMPOSE_FILE; see install.sh.
+#
+# What it changes, and why:
+#   - Every container joins one cgroup slice, LUMBRIDGE_COMPUTER_SLICE (default
+#     `lumbridge-computer.slice`), so Lumbridge Computer can read the stack's real memory use from
+#     /sys/fs/cgroup/<slice path>/memory.current and keep the unused part of the
+#     reservation out of reach of model admission. A box that uses another slice
+#     name says so in lumbridge-computer.toml ([supabase] slice).
+#   - Each container gets a hard memory ceiling. The sum (8.5 GiB) is what the
+#     stack reserves on the shared unified-memory pool; keep [supabase]
+#     reservation_gb and the registry reservation in step if you change these.
+#     (Upstream v0.8.4 defaults functions to 2g via FUNCTIONS_MEMORY_LIMIT; the
+#     512m here wins because this file loads last.)
+#   - Postgres is the last thing the kernel OOM killer picks. A model can be
+#     restarted; a killed database is an outage for every device on the box.
+#   - Nothing listens beyond loopback. Devices reach the API through
+#     `tailscale serve` (tailnet only); Postgres is reachable only on the host.
+#     `lumbridge-computer doctor` fails if any container port is bound to 0.0.0.0.
+
+x-lumbridge-computer: &lumbridge-computer
+  cgroup_parent: ${LUMBRIDGE_COMPUTER_SLICE:-lumbridge-computer.slice}
+
+services:
+  db:
+    <<: *lumbridge-computer
+    mem_limit: 4g
+    oom_score_adj: -900
+
+  supavisor:
+    <<: *lumbridge-computer
+    mem_limit: 512m
+    oom_score_adj: -500
+    ports: !override
+      - 127.0.0.1:${POSTGRES_PORT}:5432
+      - 127.0.0.1:${POOLER_PROXY_PORT_TRANSACTION}:6543
+
+  api-gw:
+    <<: *lumbridge-computer
+    mem_limit: 256m
+    oom_score_adj: -500
+    ports: !override
+      - 127.0.0.1:${API_GW_HTTP_PORT:-8000}:8000/tcp
+
+  auth:
+    <<: *lumbridge-computer
+    mem_limit: 256m
+    oom_score_adj: -500
+
+  rest:
+    <<: *lumbridge-computer
+    mem_limit: 256m
+    oom_score_adj: -500
+    # The pinned PostgREST image has no ENTRYPOINT and CMD ["postgrest"].
+    # Select the executable explicitly so command is passed as RTS arguments.
+    # Two GHC capabilities bound per-capability allocation/parallel GC on
+    # high-core hosts without changing the stack's memory reservation.
+    entrypoint: ["postgrest"]
+    command: ["+RTS", "-N2", "-RTS"]
+
+  realtime:
+    <<: *lumbridge-computer
+    mem_limit: 512m
+    oom_score_adj: -500
+
+  storage:
+    <<: *lumbridge-computer
+    mem_limit: 512m
+
+  imgproxy:
+    <<: *lumbridge-computer
+    mem_limit: 512m
+
+  meta:
+    <<: *lumbridge-computer
+    mem_limit: 256m
+
+  functions:
+    <<: *lumbridge-computer
+    mem_limit: 512m
+
+  studio:
+    <<: *lumbridge-computer
+    mem_limit: 1g

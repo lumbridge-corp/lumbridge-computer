@@ -1,0 +1,84 @@
+apiVersion: lumbridge/v1
+kind: Registry
+version: 1
+
+# Registry delta for the `two-brains-lite` Scene. Not a whole registry: merge
+# these two entries into a registry that has the rest of `everything` (the
+# test fixture box, tests/fixtures/box, is one). brain is the fixture's entry
+# plus `serve.sleep`; brain-alt extends it, so it sleeps the same way.
+#
+# What `serve.sleep` does to the launch (check with `lumbridge-computer model show
+# brain-alt`): adds --enable-sleep-mode and --worker-extension-cls
+# lumbridge_computer_sleep_ext.LumbridgeComputerSleepExt, sets VLLM_SERVER_DEV_MODE=1,
+# puts the extension's directory (assets/vllm) first on PYTHONPATH, and binds the
+# engine to 127.0.0.1 whatever the recipe says: dev mode serves /collective_rpc
+# to anyone who can reach the port. Clients reach both brains through the
+# gateway (:8011). See docs/sleep.md.
+
+models:
+  brain:
+    name: "General brain 35B-A3B (NVFP4, vision, MTP)"
+    footprint_gb: 40
+    shed_priority: -100
+    channel: stable
+    health: http://localhost:${PORT}/v1/models
+    health_contains: "\"root\":\"/home/sam/models/brain-35b-a3b-nvfp4\""
+    supervision:
+      restart: always
+      check_interval_sec: 15
+      failure_threshold: 2
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 2700
+      liveness:
+        kind: vllm-metrics
+        stall_sec: 300
+        chat_probe:
+          interval_sec: 120
+          timeout_sec: 30
+    serve:
+      kind: vllm
+      # Level 2 is the only sleep level a hybrid engine survives on GB10.
+      # Defaults: footprint_gb max(6, 0.3 x 40) = 12; wake POST
+      # /wake_up?tags=weights -> POST /collective_rpc {"method":"reload_all_fast"}
+      # (must report draft_loaded: true, the recipe has MTP) -> POST
+      # /wake_up?tags=kv_cache; sleep POST /sleep?level=2&mode=wait after
+      # draining. A failed wake stops the engine; the next request cold-starts it.
+      sleep:
+        level: 2
+        wake_timeout_sec: 60   # the gateway holds requests this long for a wake
+      executable: ~/vllm-env/bin/vllm
+      port: 8001
+      weights: /home/sam/models/brain-35b-a3b-nvfp4
+      served_name:
+      - brain
+      - general-35b
+      args:
+        max-model-len: 131072
+        kv-cache-dtype: fp8
+        gpu-memory-utilization: 0.3
+        max-num-seqs: 4
+        max-num-batched-tokens: 4096
+        enable-prefix-caching: true
+        limit-mm-per-prompt: "{\"image\": 4, \"video\": 0}"
+        enable-auto-tool-choice: true
+        tool-call-parser: qwen3_coder
+        reasoning-parser: qwen3
+        speculative-config: '{"method":"mtp","num_speculative_tokens":3}'
+      env:
+        HF_HUB_OFFLINE: "1"
+        PATH: /home/sam/vllm-env/bin:/usr/local/cuda/bin:/usr/local/bin:/usr/bin:/bin
+        MAX_JOBS: "4"
+
+  # Same recipe, supervision and liveness; only what differs is written down.
+  # served_name is a list, so it is replaced (not appended to): brain-alt does
+  # not answer to `brain`. health follows ${PORT} to :8002 by itself.
+  brain-alt:
+    extends: brain
+    name: "Alternative brain 35B-A3B (NVFP4, vision, MTP)"
+    shed_priority: -50  # under memory pressure, shed before the main brain
+    health_contains: "\"root\":\"/home/sam/models/brain-alt-35b-a3b-nvfp4\""
+    serve:
+      port: 8002
+      weights: /home/sam/models/brain-alt-35b-a3b-nvfp4
+      served_name: [brain-alt]

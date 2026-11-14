@@ -1,0 +1,24 @@
+[Unit]
+Description=Lumbridge Computer resident Scene supervisor and model gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Change the user and the paths to yours. The root holds registry/, scenes/ and .compute/.
+User=sam
+Environment=HOME=/home/sam
+Environment=LUMBRIDGE_COMPUTER_ROOT=/home/sam/lumbridge-computer
+# The gateway has no authentication, so it listens on loopback only. To let other
+# machines on your private network reach it, use --listen 0.0.0.0:8011 (or the
+# box's private address); never expose :8011 to the internet.
+ExecStart=/home/sam/lumbridge-computer/target/release/lumbridge-computer agent --listen 127.0.0.1:8011 --upstream 127.0.0.1:8001 --floor 3
+Restart=always
+RestartSec=2
+# Model process groups are lifecycle-owned by the agent and must survive an agent
+# binary restart; the agent will revalidate their boot/start identities on resume.
+KillMode=process
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

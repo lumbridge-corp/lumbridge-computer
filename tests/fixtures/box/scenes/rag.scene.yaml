@@ -1,0 +1,16 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: rag
+  version: 1
+  description: "Brain with embeddings and a reranker."
+  author: lumbridge-computer
+  tags: [brain, rag]
+models:
+  - brain
+  - embed
+  - rerank
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

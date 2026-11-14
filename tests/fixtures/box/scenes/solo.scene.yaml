@@ -1,0 +1,14 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: solo
+  version: 1
+  description: "The general brain alone."
+  author: lumbridge-computer
+  tags: [brain]
+models:
+  - brain
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

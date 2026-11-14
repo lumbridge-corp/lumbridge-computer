@@ -1,0 +1,12 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: two
+  version: 1
+  description: "Demo scene two: beta + gamma (keeps beta, swaps alpha->gamma)."
+models:
+  - beta
+  - gamma
+activation:
+  order: footprint-asc
+  wait_healthy: true

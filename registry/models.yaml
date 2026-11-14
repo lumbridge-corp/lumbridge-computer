@@ -1,0 +1,130 @@
+# Reference registry: one 128 GB unified-memory box running a brain, speech in
+# and out, and retrieval. A trusted local file: the runtimes and weights it
+# names are installed separately (see docs/SELF-HOSTING.md). Copy it next to
+# your own scenes and change paths, ports and footprints to what you run.
+apiVersion: lumbridge/v1
+kind: Registry
+version: 1
+
+reservations:
+  # The self-hosted Supabase stack (assets/supabase). 8.5 GB is the sum of
+  # the containers' mem_limit in the overlay; keep the two in step.
+  server:
+    gb: 8.5
+    cgroup: lumbridge.slice/lumbridge-server.slice
+    description: Server database (supabase)
+
+models:
+  brain:
+    name: "General brain 35B-A3B (NVFP4, vision, MTP)"
+    footprint_gb: 40
+    shed_priority: -100
+    channel: stable
+    health: http://localhost:${PORT}/v1/models
+    health_contains: brain
+    supervision:
+      restart: always
+      check_interval_sec: 15
+      failure_threshold: 2
+      backoff_sec: 60
+      max_backoff_sec: 900
+      startup_timeout_sec: 2700  # the first boot compiles kernels
+      liveness:
+        kind: vllm-metrics
+        stall_sec: 300
+        chat_probe:
+          interval_sec: 120
+          timeout_sec: 30
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8001
+      weights: ~/models/brain-35b-a3b-nvfp4
+      served_name:
+      - brain
+      - ${MODEL_ID}
+      args:
+        max-model-len: 131072
+        kv-cache-dtype: fp8
+        gpu-memory-utilization: 0.3
+        max-num-seqs: 4
+        max-num-batched-tokens: 4096
+        enable-prefix-caching: true
+        limit-mm-per-prompt: "{\"image\": 4, \"video\": 0}"
+        enable-auto-tool-choice: true
+        tool-call-parser: qwen3_coder
+        reasoning-parser: qwen3
+      env:
+        HF_HUB_OFFLINE: "1"
+
+  embed:
+    name: "Embedding model 1B (NVFP4)"
+    footprint_gb: 3
+    shed_priority: 0
+    channel: stable
+    health: http://localhost:${PORT}/v1/models
+    health_contains: embed
+    supervision: {restart: always, check_interval_sec: 10, failure_threshold: 2, backoff_sec: 30, max_backoff_sec: 600, startup_timeout_sec: 600}
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8012
+      weights: ~/models/embed-1b-nvfp4
+      served_name: [embed]
+      args:
+        runner: pooling
+        max-model-len: 32768
+        gpu-memory-utilization: 0.02
+        enforce-eager: true
+
+  rerank:
+    name: "Reranker 1B (BF16, cross-encoder)"
+    footprint_gb: 5
+    shed_priority: 0
+    channel: stable
+    health: http://localhost:${PORT}/v1/models
+    health_contains: rerank
+    supervision: {restart: always, check_interval_sec: 10, failure_threshold: 2, backoff_sec: 30, max_backoff_sec: 600, startup_timeout_sec: 600}
+    serve:
+      kind: vllm
+      executable: ~/vllm-env/bin/vllm
+      port: 8015
+      weights: ~/models/rerank-1b
+      served_name: [rerank]
+      args:
+        runner: pooling
+        max-model-len: 8192
+        gpu-memory-utilization: 0.03
+        enforce-eager: true
+
+  asr:
+    name: "Streaming speech recognition 0.6B (English)"
+    footprint_gb: 7
+    shed_priority: -40
+    channel: stable
+    health: http://localhost:${PORT}/health
+    health_contains: '"status":"ok"'
+    supervision: {restart: always, check_interval_sec: 10, failure_threshold: 2, backoff_sec: 30, max_backoff_sec: 600, startup_timeout_sec: 120}
+    serve:
+      kind: python
+      port: 8006
+      command: [~/asr-env/bin/python, ~/asr/server.py]
+      env:
+        ASR_MODEL_PATH: ~/models/asr-streaming-0.6b
+        ASR_PORT: "8006"
+
+  tts:
+    name: "Voice-clone TTS 2B (48 kHz)"
+    footprint_gb: 12
+    shed_priority: -50
+    channel: stable
+    health: http://localhost:${PORT}/health
+    health_contains: '"model_loaded":true'
+    supervision: {restart: always, check_interval_sec: 30, failure_threshold: 3, backoff_sec: 60, max_backoff_sec: 900, startup_timeout_sec: 600}
+    serve:
+      kind: python
+      port: 8097
+      command: [~/tts-env/bin/python, ~/tts/server.py, --port, "8097"]
+      env:
+        PYTHONUNBUFFERED: "1"
+        TTS_MODEL_DIR: ~/models/tts-2b

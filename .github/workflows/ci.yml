@@ -1,0 +1,33 @@
+# Scrub check, format, clippy and the whole test suite (scripts/ci.sh) on a
+# GitHub-hosted runner. No secrets are needed. Actions are pinned to a commit.
+name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      RUST_VERSION: 1.97.1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Scrub check
+        run: scripts/scrub-check
+      - name: Rust
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal --component rustfmt,clippy
+          rustup default "$RUST_VERSION"
+      - name: Checks (scripts/ci.sh)
+        run: scripts/ci.sh
+      - name: Release build
+        run: cargo build --locked --release

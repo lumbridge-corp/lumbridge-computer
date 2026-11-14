@@ -1,0 +1,33 @@
+apiVersion: lumbridge/v1
+kind: EvalSuite
+metadata:
+  name: smoke
+  version: 1
+  description: "Fast correctness and serving-health gate for every new model."
+  tags: [smoke, ci]
+defaults:
+  max_tokens: 96
+  temperature: 0.0
+  repeat: 1
+  system: "Follow the requested output format exactly. Do not explain unless asked."
+cases:
+  - id: exact-instruction
+    category: instruction
+    prompt: "Reply with exactly: lumbridge ready"
+    assertions:
+      - type: exact
+        value: "lumbridge ready"
+  - id: arithmetic
+    category: reasoning
+    prompt: "A box has 121 GB. The OS reserves 21 GB and models use 75 GB. Reply with only the remaining number."
+    assertions:
+      - type: exact
+        value: "25"
+  - id: concise-voice
+    category: voice
+    prompt: "In at most twelve words, say that risk limits are operating normally. No markdown."
+    assertions:
+      - type: max_words
+        value: 12
+      - type: not_contains
+        value: "**"

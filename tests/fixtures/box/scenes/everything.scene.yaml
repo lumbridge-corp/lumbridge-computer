@@ -1,0 +1,21 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: everything
+  version: 1
+  description: "Brain, speech in and out, and retrieval: the resident set."
+  author: lumbridge-computer
+  tags: [brain, speech, rag]
+models:
+  - brain
+  - asr
+  - transcribe
+  - asr-compat
+  - tts
+  - tts-compat
+  - embed
+  - rerank
+budget_gb: 111
+activation:
+  order: listed
+  wait_healthy: true

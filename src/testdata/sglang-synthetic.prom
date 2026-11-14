@@ -1,0 +1,34 @@
+# fixture: SYNTHETIC. Hand-written in SGLang's metric names (sglang:*, as
+# exported with --enable-metrics) to test summing across label sets. Not a capture.
+# Two data-parallel schedulers (dp_rank 0 and 1), plus a per-priority breakdown
+# that must not be double counted, plus custom caller labels with an escaped
+# quote and a comma.
+# HELP sglang:num_running_reqs The number of running requests.
+# TYPE sglang:num_running_reqs gauge
+sglang:num_running_reqs{model_name="brain-qwen38",engine_type="unified",tp_rank="0",pp_rank="0",dp_rank="0"} 3.0
+sglang:num_running_reqs{model_name="brain-qwen38",engine_type="unified",tp_rank="0",pp_rank="0",dp_rank="1"} 2.0
+sglang:num_running_reqs{model_name="brain-qwen38",engine_type="unified",tp_rank="0",pp_rank="0",dp_rank="0",priority="1"} 3.0
+# HELP sglang:num_queue_reqs The number of requests in the waiting queue.
+# TYPE sglang:num_queue_reqs gauge
+sglang:num_queue_reqs{model_name="brain-qwen38",engine_type="unified",tp_rank="0",pp_rank="0",dp_rank="0"} 1.0
+sglang:num_queue_reqs{model_name="brain-qwen38",engine_type="unified",tp_rank="0",pp_rank="0",dp_rank="1"} 0.0
+# HELP sglang:token_usage The token usage.
+# TYPE sglang:token_usage gauge
+sglang:token_usage{model_name="brain-qwen38",engine_type="unified",tp_rank="0",pp_rank="0",dp_rank="0"} 0.25
+sglang:token_usage{model_name="brain-qwen38",engine_type="unified",tp_rank="0",pp_rank="0",dp_rank="1"} 0.5
+# HELP sglang:gen_throughput The generation throughput (token/s).
+# TYPE sglang:gen_throughput gauge
+sglang:gen_throughput{model_name="brain-qwen38",engine_type="unified",tp_rank="0",pp_rank="0",dp_rank="0"} 57.09
+sglang:cache_hit_rate{model_name="brain-qwen38",engine_type="unified",tp_rank="0",pp_rank="0",dp_rank="0"} NaN
+# HELP sglang:prompt_tokens_total Number of prefill tokens processed.
+# TYPE sglang:prompt_tokens_total counter
+sglang:prompt_tokens_total{model_name="brain-qwen38",client="cloud-agent",agent="prime\"one, two",workload="interactive"} 1.65238e+05
+sglang:prompt_tokens_total{model_name="brain-qwen38",client="",agent="",workload=""} 1000.0
+# HELP sglang:generation_tokens_total Number of generation tokens processed.
+# TYPE sglang:generation_tokens_total counter
+sglang:generation_tokens_total{model_name="brain-qwen38",client="cloud-agent",agent="prime\"one, two",workload="interactive"} 7476.0
+sglang:generation_tokens_total{model_name="brain-qwen38",client="",agent="",workload=""} 24.0
+sglang:num_requests_total{model_name="brain-qwen38",client="cloud-agent",agent="prime\"one, two",workload="interactive"} 40.0
+sglang:time_to_first_token_seconds_bucket{model_name="brain-qwen38",le="+Inf"} 40.0
+sglang:time_to_first_token_seconds_sum{model_name="brain-qwen38"} 12.5
+sglang:time_to_first_token_seconds_count{model_name="brain-qwen38"} 40.0

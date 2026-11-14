@@ -1,0 +1,39 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: two-brains-lite
+  version: 1
+  description: '`everything` plus brain-alt (:8002) on demand. The main brain stays
+    up but may sleep to make room; brain-alt starts on its first request, sleeps
+    after 10 idle minutes and stops after 30 asleep.'
+  author: lumbridge-computer
+  tags: [brain, vision, speech, rag, on-demand]
+# Why the main brain is `sleepable`: everything (93 GB) + brain-alt (40 GB) +
+# 8 GB margin = 141 GB, more than a 128 GB box has. With brain-alt on demand
+# the Scene fits only if one of the two brains can step aside while the other
+# serves. `idle_sec: 0` means the main brain is never slept for being idle,
+# only to make room for brain-alt (and only when it has nothing in flight);
+# the next `brain` request wakes it again and puts brain-alt to sleep.
+#
+# Budget check (`lumbridge-computer scene show two-brains-lite`), with the default
+# sleeping footprint max(6, 0.3 x 40) = 12 GB per brain: residents 53 GB + both
+# brains asleep 12 + 12 GB + room for one brain awake 28 GB = 105 GB + 8 margin
+# = 113 GB. Once the brain's real sleeping footprint is measured, set
+# serve.sleep.footprint_gb and lower this.
+models:
+  - brain
+  - brain-alt
+  - asr
+  - transcribe
+  - asr-compat
+  - tts
+  - tts-compat
+  - embed
+  - rerank
+modes:
+  brain: {mode: sleepable, idle_sec: 0}
+  brain-alt: {mode: on_demand, idle_sec: 600, stop_after_sec: 1800}
+budget_gb: 113
+activation:
+  order: listed
+  wait_healthy: true

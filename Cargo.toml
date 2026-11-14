@@ -1,0 +1,38 @@
+[package]
+name = "lumbridge-computer"
+description = "Lumbridge Computer: one agent that runs the models, memory, Supabase and Tailscale of a self-hosted AI box."
+readme = "README.md"
+keywords = ["dgx-spark", "gb10", "llm", "orchestration", "unified-memory"]
+categories = ["command-line-utilities"]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["Lumbridge Corp"]
+repository = "https://github.com/lumbridge-corp/lumbridge-computer"
+homepage = "https://lumbridgecorp.com"
+rust-version = "1.88"
+
+[[bin]]
+name = "lumbridge-computer"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = { version = "1", features = ["raw_value"] }
+anyhow = "1"
+libc = "0.2"
+rmcp = { version = "3", features = ["server", "transport-io", "macros"] }
+schemars = "1"
+tokio = { version = "1", features = ["rt", "io-std", "fs", "time", "net", "rt-multi-thread", "sync", "macros"] }
+rusqlite = { version = "0.37", features = ["bundled"] }
+hyper = { version = "1", features = ["http1", "server", "client"] }
+hyper-util = { version = "0.1", features = ["tokio", "client-legacy", "http1"] }
+http-body-util = "0.1"
+bytes = "1"
+toml = "1"
+
+[profile.release]
+strip = true
+lto = true

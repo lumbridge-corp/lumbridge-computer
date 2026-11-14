@@ -1,0 +1,16 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: tight
+  version: 1
+  description: "Fills the budget to the last gigabyte."
+  author: lumbridge-computer
+  tags: [test]
+models:
+  - brain
+  - transcribe
+  - music
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true

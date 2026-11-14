@@ -1,0 +1,10 @@
+# fixture: SYNTHETIC. Pre-v1 vLLM (0.6-0.8) names: gpu_cache_usage_perc instead of
+# kv_cache_usage_perc. Hand-written, not a capture. Two model_names on one server.
+vllm:num_requests_running{model_name="judge"} 1.0
+vllm:num_requests_running{model_name="judge-lora"} 1.0
+vllm:num_requests_swapped{model_name="judge"} 0.0
+vllm:num_requests_waiting{model_name="judge"} 4.0
+vllm:gpu_cache_usage_perc{model_name="judge"} 0.875
+vllm:gpu_cache_usage_perc{model_name="judge-lora"} 0.125
+vllm:prompt_tokens_total{model_name="judge"} 1.0e+03
+vllm:generation_tokens_total{model_name="judge"} 2.5e+02

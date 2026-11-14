@@ -1,0 +1,23 @@
+# Accepted hits of scripts/scrub-check. One entry per line: <path glob>:<regex>
+# The matching text is cut from lines of matching files before the check, so
+# an entry allows exactly that text and nothing else on the line.
+# Every entry has its reason above it. Keep the list short.
+
+# systemd's per-user manager unit appears in cgroup paths (user@1000.service);
+# it is not an email address.
+*:user@[0-9]+\.service
+
+# The made-up tailnet of the example box (box1.tail0000.ts.net) in docs, the
+# example config, test fixtures and tests, and a wrong one (tail9999) in a
+# doctor test. Other ts.net names stay flagged.
+*:\b(box1\.)?tail0000\.ts\.net\b
+src/box_/doctor.rs:\btail9999\.ts\.net\b
+src/box_/observe.rs:\bh\.ts\.net\b
+
+# The fixture box's own tailnet address in the captured `tailscale status` shape.
+src/box_/fixtures/box1/tailscale-status.json:\b100\.64\.0\.1\b
+
+# Test vectors on a private network: a proxy target in a config test and a
+# non-loopback engine URL in a sleep test.
+src/box_/config.rs:\b10\.0\.0\.5\b
+src/engines/sleep.rs:\b10\.0\.0\.1\b

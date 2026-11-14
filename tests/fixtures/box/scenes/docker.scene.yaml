@@ -1,0 +1,16 @@
+apiVersion: lumbridge/v1
+kind: Scene
+metadata:
+  name: docker
+  version: 1
+  description: "The brain from a container image, with retrieval."
+  author: lumbridge-computer
+  tags: [brain, docker]
+models:
+  - brain-docker
+  - embed
+  - rerank
+budget_gb: 100
+activation:
+  order: listed
+  wait_healthy: true
