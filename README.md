@@ -1,3 +1,5 @@
+![Lumbridge Computer: Your GPU box, run as one system.](docs/assets/banner.jpg)
+
 # Lumbridge Computer
 
 Lumbridge Computer runs the AI models on one machine and keeps that machine
@@ -15,6 +17,8 @@ It is one Rust binary, `lumbridge-computer`, with three jobs:
 | **Models** | Scenes (named sets of models), memory admission on one unified pool, a watchdog that sheds models before the box wedges, process ownership that survives agent restarts, supervision, sleep and on-demand models, an OpenAI-compatible gateway, telemetry, evals |
 | **Supabase** | The box's self-hosted Supabase (upstream compose plus an overlay): loopback-only ports, a memory reservation and a kernel memory floor, install and health checks |
 | **Tailscale** | What the box publishes on your tailnet, declared in a config file and checked for drift |
+
+![Terminal: lumbridge-computer lists three Scenes, activates one, and refuses a Scene that does not fit the memory budget, rolling back to the Scene that was running.](docs/assets/screenshot.jpg)
 
 ## Status
 
